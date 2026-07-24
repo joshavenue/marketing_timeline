@@ -51,6 +51,27 @@ export async function requireWorkspaceMember(
   return { workspaceId, ...membership };
 }
 
+export async function requireCurrentWorkspaceMember(): Promise<MemberContext> {
+  const session = await getServerSession(authOptions);
+  const email = session?.user?.email?.trim().toLowerCase();
+  if (!email) throw new Error("UNAUTHENTICATED");
+
+  const [membership] = await db
+    .select({
+      workspaceId: memberships.workspaceId,
+      userId: users.id,
+      email: users.email,
+      role: memberships.role,
+    })
+    .from(memberships)
+    .innerJoin(users, eq(users.id, memberships.userId))
+    .where(and(eq(users.email, email), eq(memberships.active, true)))
+    .limit(1);
+
+  if (!membership) throw new Error("FORBIDDEN");
+  return membership;
+}
+
 export async function requireWorkspaceAdmin(
   workspaceId: string,
 ): Promise<MemberContext> {

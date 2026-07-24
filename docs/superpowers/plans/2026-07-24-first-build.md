@@ -833,7 +833,7 @@ git commit -m "feat: import curated Notion history"
 - Zoom is exactly `"year" | "quarter" | "month" | "week"`.
 - User preference key is `timeline.viewport`.
 
-- [ ] **Step 1: Write failing timeline-layout tests**
+- [x] **Step 1: Write failing timeline-layout tests**
 
 Test that:
 
@@ -843,23 +843,23 @@ Test that:
 - Alternating marker sides are stable by `(date, id)` ordering.
 - A date range uses its start for the marker and retains its end in details.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/timeline-layout.test.ts`
 
 Expected: FAIL because the layout functions do not exist.
 
-- [ ] **Step 3: Implement the server query and horizontal timeline**
+- [x] **Step 3: Implement the server query and horizontal timeline**
 
 The main DOM contains one scroll container with a central horizontal axis, alternating event callouts, a visible today marker, and left/right continuation affordances. Use semantic buttons for markers and preserve focus. Use URL search parameters for filters and zoom. Save scroll position and zoom after 500 ms of inactivity; restore them unless the URL supplies an explicit date.
 
 The growth rail is collapsible and renders cached observations only. Empty periods render gaps.
 
-- [ ] **Step 4: Add Playwright history behavior**
+- [x] **Step 4: Add Playwright history behavior**
 
 Seed past, active, and future records. Assert first load centers today, horizontal scrolling works, zoom changes, filter selection reduces markers, and reload restores the viewport.
 
-- [ ] **Step 5: Run checks and commit**
+- [x] **Step 5: Run checks and commit**
 
 ```bash
 pnpm test tests/unit/timeline-layout.test.ts

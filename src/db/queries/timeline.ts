@@ -1,8 +1,13 @@
-import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte, or } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
 import { db } from "@/db/client";
-import { campaigns, initiatives, timelineEvents } from "@/db/schema";
+import {
+  campaigns,
+  initiatives,
+  timelineEventContributors,
+  timelineEvents,
+} from "@/db/schema";
 import type {
   DisplayLevel,
   TimelineKind,
@@ -17,6 +22,9 @@ export interface TimelineRow {
   start: string;
   end: string | null;
   displayLevel: DisplayLevel;
+  campaignId: string | null;
+  status: string | null;
+  contributors: string[];
 }
 
 function overlapsWindow(
@@ -44,6 +52,8 @@ export async function listTimelineRows(
         start: campaigns.startDate,
         end: campaigns.endDate,
         displayLevel: campaigns.displayLevel,
+        campaignId: campaigns.id,
+        status: campaigns.lifecycleStatus,
       })
       .from(campaigns)
       .where(
@@ -61,6 +71,8 @@ export async function listTimelineRows(
         start: initiatives.startDate,
         end: initiatives.endDate,
         displayLevel: initiatives.displayLevel,
+        campaignId: initiatives.campaignId,
+        status: initiatives.lifecycleStatus,
       })
       .from(initiatives)
       .where(
@@ -79,8 +91,11 @@ export async function listTimelineRows(
         start: timelineEvents.startDate,
         end: timelineEvents.endDate,
         displayLevel: timelineEvents.displayLevel,
+        campaignId: initiatives.campaignId,
+        status: initiatives.lifecycleStatus,
       })
       .from(timelineEvents)
+      .leftJoin(initiatives, eq(initiatives.id, timelineEvents.initiativeId))
       .where(
         and(
           eq(timelineEvents.workspaceId, workspaceId),
@@ -94,13 +109,46 @@ export async function listTimelineRows(
       ),
   ]);
 
+  const contributorRows =
+    eventRows.length === 0
+      ? []
+      : await db
+          .select({
+            eventId: timelineEventContributors.eventId,
+            name: timelineEventContributors.contributorName,
+          })
+          .from(timelineEventContributors)
+          .where(
+            and(
+              eq(timelineEventContributors.workspaceId, workspaceId),
+              inArray(
+                timelineEventContributors.eventId,
+                eventRows.map((row) => row.id),
+              ),
+            ),
+          );
+  const contributorsByEvent = new Map<string, string[]>();
+  for (const contributor of contributorRows) {
+    const current = contributorsByEvent.get(contributor.eventId) ?? [];
+    current.push(contributor.name);
+    contributorsByEvent.set(contributor.eventId, current);
+  }
+
   return [
-    ...campaignRows.map((row) => ({ ...row, kind: "campaign" as const })),
+    ...campaignRows.map((row) => ({
+      ...row,
+      kind: "campaign" as const,
+      contributors: [],
+    })),
     ...initiativeRows.map((row) => ({
       ...row,
       kind: "initiative" as const,
+      contributors: [],
     })),
-    ...eventRows,
+    ...eventRows.map((row) => ({
+      ...row,
+      contributors: contributorsByEvent.get(row.id) ?? [],
+    })),
   ].sort(
     (left, right) =>
       left.start.localeCompare(right.start) || left.id.localeCompare(right.id),

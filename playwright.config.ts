@@ -2,11 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  globalSetup: "./tests/e2e/global.setup.ts",
   fullyParallel: false,
   reporter: "list",
   webServer: {
     command:
-      "APP_ENV=test E2E_TEST_MODE=1 E2E_TEST_ADMIN_EMAIL=admin@example.test E2E_TEST_MEMBER_EMAIL=member@example.test pnpm dev",
+      "APP_ENV=test E2E_TEST_MODE=1 E2E_TEST_ADMIN_EMAIL=admin@example.test E2E_TEST_MEMBER_EMAIL=member@example.test NEXTAUTH_URL=http://127.0.0.1:3000 pnpm dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: false,
   },
@@ -17,7 +18,10 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "test-results/admin.json",
+      },
     },
   ],
 });
