@@ -683,17 +683,17 @@ export interface ConnectorManifest {
 }
 ```
 
-- [ ] **Step 1: Write failing encryption and skill-version tests**
+- [x] **Step 1: Write failing encryption and skill-version tests**
 
 Assert encryption is nondeterministic, round-trips correctly, rejects tampering, and never includes plaintext. Assert activating skill version 2 deactivates version 1 but retains its row and emits one audit event. Assert a skill with zero or two `connector-manifest` blocks is rejected.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts`
 
 Expected: FAIL because the services do not exist.
 
-- [ ] **Step 3: Implement AES-256-GCM and append-only audit**
+- [x] **Step 3: Implement AES-256-GCM and append-only audit**
 
 Decode `CREDENTIAL_ENCRYPTION_KEY` as exactly 32 bytes. Use a fresh 12-byte IV per encryption. `audit_events` has no update/delete service. Skill Markdown is stored as text, limited to 256 KiB, and is never executed.
 
@@ -726,13 +726,13 @@ Require exactly one fenced machine-readable block:
 
 Parse only this JSON block with Zod. Preserve the remaining Markdown as LLM instruction text for the later OpenRouter phase. Save the complete example above in `docs/examples/X_API.example.md` with a short explanatory Markdown section after the manifest.
 
-- [ ] **Step 4: Run checks**
+- [x] **Step 4: Run checks**
 
 Run: `pnpm test tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/crypto src/lib/audit src/lib/connectors/skills.ts docs/examples/X_API.example.md tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts
