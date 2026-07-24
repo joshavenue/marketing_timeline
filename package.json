@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:acceptance": "vitest run && playwright test tests/e2e/acceptance.spec.ts --project=chromium",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "worker": "tsx scripts/worker.ts"

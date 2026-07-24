@@ -3,6 +3,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { ConnectionForm } from "@/components/settings/ConnectionForm";
 import { SkillVersionForm } from "@/components/settings/SkillVersionForm";
 import { SpendingCapForm } from "@/components/settings/SpendingCapForm";
+import { RefreshPreflight } from "@/components/settings/RefreshPreflight";
 import { db } from "@/db/client";
 import { connections, connectorSkills } from "@/db/schema";
 import { requireCurrentWorkspaceMember } from "@/lib/auth/access";
@@ -85,6 +86,10 @@ export default async function ConnectionsPage() {
           ))}
         </ul>
       </section>
+      <RefreshPreflight
+        connections={connectionRows.map(({ id, name }) => ({ id, name }))}
+        isAdmin
+      />
     </main>
   );
 }

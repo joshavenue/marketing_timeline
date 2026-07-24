@@ -732,6 +732,7 @@ export async function syncNotionWorkspace(input: {
       unchanged: report.unchanged.length,
       archived: report.archived.length,
       invalid: report.invalid.length,
+      invalidRecords: report.invalid,
     },
   });
 

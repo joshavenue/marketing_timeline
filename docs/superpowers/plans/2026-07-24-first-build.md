@@ -1266,7 +1266,7 @@ git commit -m "ops: add VPS deployment and recovery"
 - Produces: one repeatable acceptance command: `pnpm test:acceptance`.
 - Production seed creates the first admin only when `BOOTSTRAP_ADMIN_EMAIL` exactly matches the Google account.
 
-- [ ] **Step 1: Add the acceptance script and failing E2E suite**
+- [x] **Step 1: Add the acceptance script and failing E2E suite**
 
 Add:
 
@@ -1280,13 +1280,13 @@ Add:
 
 The browser/API suite covers master acceptance criteria 1–19. `tests/ops/backup-restore.sh` covers criterion 20. OpenRouter, xAI, and later connectors must not be marked as implemented.
 
-- [ ] **Step 2: Run the complete acceptance suite**
+- [x] **Step 2: Run the complete acceptance suite**
 
 Run: `pnpm test:acceptance`
 
 Expected: PASS. If it fails, do not patch broadly in this task. Return to the task that owns the failed behavior, add the missing focused test there, make it pass, and then rerun this step.
 
-- [ ] **Step 3: Run the complete verification matrix**
+- [x] **Step 3: Run the complete verification matrix**
 
 ```bash
 pnpm lint

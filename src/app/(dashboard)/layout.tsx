@@ -12,6 +12,7 @@ export default function DashboardLayout({
           </Link>
           <nav className="flex items-center gap-5 text-xs font-medium text-black/55">
             <Link href="/timeline">History</Link>
+            <Link href="/analytics/x/post">X Analytics</Link>
             <Link href="/notifications">Notifications</Link>
             <Link href="/settings/notion">Settings</Link>
           </nav>

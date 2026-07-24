@@ -12,7 +12,11 @@ test("registered members can comment and reply on an initiative", async ({
   await page.getByRole("button", { name: "Post comment" }).click();
   await expect(page.getByText("Review launch outcomes.")).toBeVisible();
 
-  await page.getByRole("button", { name: "Reply" }).click();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Review launch outcomes." })
+    .getByRole("button", { name: "Reply" })
+    .click();
   await page.getByPlaceholder("Add a team note…").fill("Outcome review complete.");
   await page.getByRole("button", { name: "Post reply" }).click();
   await expect(page.getByText("Outcome review complete.")).toBeVisible();

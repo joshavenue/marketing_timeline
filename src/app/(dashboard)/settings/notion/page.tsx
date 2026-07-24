@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 import { RefreshPreflight } from "@/components/settings/RefreshPreflight";
 import { db } from "@/db/client";
-import { connections } from "@/db/schema";
+import { auditEvents, connections } from "@/db/schema";
 import { requireCurrentWorkspaceMember } from "@/lib/auth/access";
 
 const databaseNames = [
@@ -22,15 +22,41 @@ export default async function NotionSettingsPage() {
   } catch {
     redirect("/login");
   }
-  const notionConnections = await db
-    .select({ id: connections.id, name: connections.name })
-    .from(connections)
-    .where(
-      and(
-        eq(connections.workspaceId, member.workspaceId),
-        eq(connections.connectorKey, "notion"),
+  const [notionConnections, latestReports] = await Promise.all([
+    db
+      .select({ id: connections.id, name: connections.name })
+      .from(connections)
+      .where(
+        and(
+          eq(connections.workspaceId, member.workspaceId),
+          eq(connections.connectorKey, "notion"),
+        ),
       ),
-    );
+    db
+      .select({ details: auditEvents.detailsJson, createdAt: auditEvents.createdAt })
+      .from(auditEvents)
+      .where(
+        and(
+          eq(auditEvents.workspaceId, member.workspaceId),
+          eq(auditEvents.action, "notion.sync.completed"),
+        ),
+      )
+      .orderBy(desc(auditEvents.createdAt))
+      .limit(1),
+  ]);
+  const reportDetails =
+    latestReports[0]?.details && typeof latestReports[0].details === "object"
+      ? (latestReports[0].details as {
+          invalidRecords?: Array<{
+            sourceId: string;
+            sourceUrl: string;
+            errors: string[];
+          }>;
+        })
+      : {};
+  const invalidRecords = Array.isArray(reportDetails.invalidRecords)
+    ? reportDetails.invalidRecords
+    : [];
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -79,9 +105,28 @@ export default async function NotionSettingsPage() {
             </p>
           </div>
           <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
-            Awaiting connection
+            {latestReports[0]
+              ? `${invalidRecords.length} invalid`
+              : "Awaiting first sync"}
           </span>
         </div>
+        {invalidRecords.length ? (
+          <ul className="mt-5 space-y-3">
+            {invalidRecords.map((record) => (
+              <li className="rounded-2xl bg-amber-50 p-4 text-sm" key={record.sourceId}>
+                <strong>{record.sourceId}</strong>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-900">
+                  {record.errors.map((error) => <li key={error}>{error}</li>)}
+                </ul>
+                {record.sourceUrl ? (
+                  <a className="mt-2 inline-block text-xs font-medium text-blue-700 underline" href={record.sourceUrl} rel="noreferrer" target="_blank">
+                    Correct in Notion
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </section>
       <RefreshPreflight
         connections={notionConnections}

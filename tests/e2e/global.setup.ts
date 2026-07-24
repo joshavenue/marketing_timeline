@@ -3,10 +3,12 @@ import { mkdir } from "node:fs/promises";
 
 import { db } from "@/db/client";
 import {
+  auditEvents,
   campaigns,
   connections,
   initiativeMetrics,
   initiatives,
+  initiativeVersions,
   memberships,
   metricDefinitions,
   metricObservations,
@@ -96,6 +98,7 @@ export default async function globalSetup(config: FullConfig) {
       startDate: shift(-90),
       displayLevel: "primary",
       sourceUrlsJson: [],
+      sourceState: "deleted",
     },
     {
       workspaceId: workspace.id,
@@ -124,10 +127,55 @@ export default async function globalSetup(config: FullConfig) {
       displayLevel: "primary",
       sourceUrlsJson: [],
     },
+    {
+      workspaceId: workspace.id,
+      externalId: "e2e-draft",
+      campaignId: campaign!.id,
+      name: "Draft initiative",
+      lifecycleStatus: "Review",
+      publicationStatus: "draft",
+      startDate: shift(30),
+      displayLevel: "primary",
+      sourceUrlsJson: [],
+    },
   ]).returning({ id: initiatives.id, externalId: initiatives.externalId });
   const active = seededInitiatives.find(
     (initiative) => initiative.externalId === "e2e-active",
   )!;
+  await db.insert(initiativeVersions).values([
+    {
+      workspaceId: workspace.id,
+      initiativeId: active.id,
+      version: 1,
+      recordJson: { name: "Active initiative", overview: "Initial version" },
+    },
+    {
+      workspaceId: workspace.id,
+      initiativeId: active.id,
+      version: 2,
+      recordJson: { name: "Active initiative", overview: "Launch version" },
+    },
+  ]);
+  await db.insert(auditEvents).values({
+    workspaceId: workspace.id,
+    actorUserId: seededUsers.find((user) => user.email.startsWith("admin"))!.id,
+    action: "notion.sync.completed",
+    entityType: "connection",
+    detailsJson: {
+      created: 5,
+      updated: 0,
+      unchanged: 0,
+      archived: 1,
+      invalid: 1,
+      invalidRecords: [
+        {
+          sourceId: "invalid-published-record",
+          sourceUrl: "https://www.notion.so/invalid-record",
+          errors: ["Initiative Start date is required. Add a valid date in Notion."],
+        },
+      ],
+    },
+  });
   const [event] = await db.insert(timelineEvents).values({
     workspaceId: workspace.id,
     externalId: "e2e-active-post",
@@ -162,6 +210,39 @@ export default async function globalSetup(config: FullConfig) {
     checksum: "response-e2e",
     observedAt: today,
   }).returning({ id: sourceSnapshots.id });
+  await db.insert(connections).values([
+    {
+      workspaceId: workspace.id,
+      connectorKey: "x_post",
+      name: "Acceptance X posts",
+      usagePeriodStart: iso(today).slice(0, 7) + "-01",
+      costPerOperationMicros: "10",
+      hardCapMicros: "100",
+      periodUsageMicros: "20",
+      freezeAgeDays: 7,
+      health: "configured",
+    },
+    {
+      workspaceId: workspace.id,
+      connectorKey: "x_account",
+      name: "Acceptance X account",
+      usagePeriodStart: iso(today).slice(0, 7) + "-01",
+      costPerOperationMicros: "10",
+      hardCapMicros: "100",
+      freezeAgeDays: 7,
+      health: "configured",
+    },
+    {
+      workspaceId: workspace.id,
+      connectorKey: "x_ads",
+      name: "Acceptance X ads",
+      usagePeriodStart: iso(today).slice(0, 7) + "-01",
+      costPerOperationMicros: "10",
+      hardCapMicros: "100",
+      freezeAgeDays: 7,
+      health: "configured",
+    },
+  ]);
   const definitions = await db.insert(metricDefinitions).values([
     {
       workspaceId: workspace.id,
@@ -188,6 +269,30 @@ export default async function globalSetup(config: FullConfig) {
       formulaKey: "engagement_rate",
       publicationStatus: "published",
     },
+    {
+      workspaceId: workspace.id,
+      externalId: "e2e-followers",
+      name: "Account followers",
+      kind: "raw",
+      connectorKey: "x_account",
+      connectionName: "X account",
+      externalMetricKey: "followers_count",
+      unit: "followers",
+      aggregation: "latest",
+      publicationStatus: "published",
+    },
+    {
+      workspaceId: workspace.id,
+      externalId: "e2e-ad-spend",
+      name: "Ads billed charge",
+      kind: "raw",
+      connectorKey: "x_ads",
+      connectionName: "X ads",
+      externalMetricKey: "billed_charge_local_micro",
+      unit: "USD",
+      aggregation: "sum",
+      publicationStatus: "published",
+    },
   ]).returning({ id: metricDefinitions.id, externalId: metricDefinitions.externalId });
   await db.insert(initiativeMetrics).values(
     definitions.map((definition) => ({
@@ -197,15 +302,29 @@ export default async function globalSetup(config: FullConfig) {
     })),
   );
   await db.insert(metricObservations).values(
-    definitions.map((definition, index) => ({
+    definitions.map((definition) => ({
       workspaceId: workspace.id,
       metricDefinitionId: definition.id,
       initiativeId: active.id,
       sourceSnapshotId: snapshot!.id,
       periodStart: new Date(`${shift(-7)}T00:00:00Z`),
       periodEnd: new Date(`${shift(7)}T00:00:00Z`),
-      value: index === 0 ? "12500" : "0.042",
-      unit: index === 0 ? "views" : "ratio",
+      value:
+        definition.externalId === "e2e-impressions"
+          ? "12500"
+          : definition.externalId === "e2e-engagement-rate"
+            ? "0.042"
+            : definition.externalId === "e2e-followers"
+              ? "25000"
+              : "12.345678",
+      unit:
+        definition.externalId === "e2e-impressions"
+          ? "views"
+          : definition.externalId === "e2e-engagement-rate"
+            ? "ratio"
+            : definition.externalId === "e2e-followers"
+              ? "followers"
+              : "USD",
       freshness: "fresh" as const,
       sourceUrl: "https://analytics.x.com/example-post",
       observedAt: today,

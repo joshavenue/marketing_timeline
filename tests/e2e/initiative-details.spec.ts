@@ -15,7 +15,7 @@ test("initiative evidence is deep-linkable and cited", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("Planned budget")).toBeVisible();
   await expect(page.getByText("Token Pre-Sales social posting")).toBeVisible();
-  await expect(page.getByText("raw", { exact: true })).toBeVisible();
+  await expect(page.getByText("raw", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("calculated", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "View citation" }).first()).toHaveAttribute(
     "href",

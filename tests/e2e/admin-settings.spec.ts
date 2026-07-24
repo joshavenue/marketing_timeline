@@ -64,6 +64,8 @@ test("member mutations are forbidden and admin settings are audited", async ({
   await page.getByLabel("Skill version").fill("1");
   await page.getByLabel("SKILL.md").fill(skill);
   await page.getByRole("button", { name: "Activate skill" }).click();
+  await expect(page.getByText("Version 1 activated.")).toBeVisible();
+  await page.reload();
   await expect(page.getByText(/Version 1.*checksum/i)).toBeVisible();
 
   await page.getByLabel("Hard cap in micros").fill("500000");
