@@ -36,6 +36,8 @@
 - `google/gemma-4-31b-it` remains documented for the later OpenRouter phase; do not add OpenRouter to this build.
 - TDD is mandatory: add a failing test, observe the intended failure, implement minimally, and rerun relevant plus full checks.
 - Commit after every task. Do not combine tasks into one commit.
+- Delivery is autonomous within this repository: create the implementation branch, commit, push, open and update the pull request, resolve review or CI issues, merge after every required check passes, and deploy the merged `main` branch without pausing for routine approval.
+- Never force-push, bypass a required check, weaken a test to obtain a pass, merge with unresolved failures, or make destructive changes outside this repository.
 - Never commit `.env`, credentials, OAuth tokens, X tokens, Notion tokens, SMTP passwords, backup keys, or production source snapshots.
 
 ## First-build definition of done
@@ -1327,15 +1329,21 @@ git commit -m "test: verify first production build"
 
 Use this exact execution discipline when launching the `/goal` worker:
 
-1. Objective: “Implement every unchecked item in `docs/superpowers/plans/2026-07-24-first-build.md` in order and deploy the accepted first build. Do not implement deferred scope.”
+1. Objective: “Autonomously implement every unchecked item in `docs/superpowers/plans/2026-07-24-first-build.md` in order, publish and merge the verified pull request, and deploy the accepted first build from `main`. Do not implement deferred scope and do not pause for routine approval.”
 2. Ask the worker to read the master design and this plan before editing.
 3. Do not let it rewrite the plan to reduce scope.
 4. Require it to update checkboxes only after the named verification command passes.
 5. Require one commit per task with the specified message or a more precise equivalent.
 6. If credentials, domain, SMTP, S3-compatible backup destination, Google OAuth client, Notion database IDs, or X account IDs are missing, the worker must finish all credential-independent work and report the exact missing values. It must not invent them.
 7. If an X metric is unavailable under the real authentication context, the worker must implement and display `CAPABILITY_UNAVAILABLE`; it must not approximate the metric.
-8. The worker must not call external paid APIs outside an admin-confirmed smoke test.
-9. The worker must keep the goal active until the production acceptance matrix passes or a genuine external-input blocker is reached.
+8. The worker may perform the plan's required one-time production smoke reads without another chat approval only after valid credentials and hard caps are configured. It must not make unrelated, repeated, or uncapped paid API calls.
+9. Start from `main` on an `agent/first-build` branch. Never implement directly on `main`.
+10. Push the branch and open a draft pull request after the first implementation commit, then keep its description, validation results, and branch current throughout execution.
+11. Before merging, run the complete required test and acceptance suite, inspect the final diff for scope and secrets, and resolve all actionable failures. Mark the pull request ready and merge it only when every required check passes.
+12. After merging, deploy the merged `main` commit and rerun production acceptance. Record the deployed commit SHA.
+13. Do not ask for approval for routine file edits, dependency installation, migrations covered by this plan, commits, pushes, pull-request updates, merge, or deployment.
+14. Stop only when a required secret or external account value is unavailable, a destructive action outside the repository would be required, required checks remain unresolvable after diagnosis, or the PRD lacks a product decision that would materially change the result. Report the exact blocker and preserve all completed work.
+15. Keep the goal active until the production acceptance matrix passes or one of the genuine blockers in item 14 is reached.
 
 ## Required human-provided production inputs
 
