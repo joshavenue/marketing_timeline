@@ -761,7 +761,7 @@ git commit -m "feat: secure connector credentials and skill versions"
 - Produces: `syncNotionWorkspace(input: { workspaceId: string; connectionId: string; actorUserId: string }): Promise<NotionSyncReport>`
 - `NotionSyncReport` contains exact arrays: `created`, `updated`, `unchanged`, `archived`, `invalid`.
 
-- [ ] **Step 1: Write failing validation tests**
+- [x] **Step 1: Write failing validation tests**
 
 Fixtures must prove:
 
@@ -770,19 +770,19 @@ Fixtures must prove:
 - Missing parent campaign, invalid date range, or missing display level is invalid.
 - Lifecycle status remains an arbitrary non-empty Notion string.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/notion-validation.test.ts`
 
 Expected: FAIL because validation does not exist.
 
-- [ ] **Step 3: Implement read-only Notion canonical DTOs and validation**
+- [x] **Step 3: Implement read-only Notion canonical DTOs and validation**
 
 Require configured database IDs for Campaigns, Initiatives, Timeline Events, Metric Definitions, and Manual Metric Observations. Query only; do not call Notion create/update/archive endpoints. Normalize Notion IDs without hyphens only for comparisons, but preserve canonical source URLs for citations.
 
 Write `docs/runbooks/notion-canonical-setup.md` with the five database names, exact property names/types from the master design, relation directions, `Publication Status` values, `Display Level` values, and one complete example of Campaign → Initiative → Event → Metric → Observation. This runbook is the curator's setup and cleanup contract.
 
-- [ ] **Step 4: Write and run failing sync-version tests**
+- [x] **Step 4: Write and run failing sync-version tests**
 
 Test initial import, identical second sync, changed checksum creating a version, and missing source ID setting `sourceState = "deleted"` without deleting prior data.
 
@@ -790,7 +790,7 @@ Run: `pnpm test tests/integration/notion-sync.test.ts`
 
 Expected: FAIL until `syncNotionWorkspace` is implemented.
 
-- [ ] **Step 5: Implement snapshot-first synchronization**
+- [x] **Step 5: Implement snapshot-first synchronization**
 
 For each source page:
 
@@ -804,7 +804,7 @@ For each source page:
 
 Do not infer campaign/initiative relationships from text. Only import explicit Notion relations.
 
-- [ ] **Step 6: Run checks and commit**
+- [x] **Step 6: Run checks and commit**
 
 ```bash
 pnpm test tests/unit/notion-validation.test.ts tests/integration/notion-sync.test.ts

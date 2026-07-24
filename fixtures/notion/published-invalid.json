@@ -1,0 +1,12 @@
+{
+  "recordType": "initiative",
+  "sourceId": "init-invalid",
+  "sourceUrl": "https://www.notion.so/init-invalid",
+  "name": "Unlinked initiative",
+  "lifecycleStatus": "In progress",
+  "publicationStatus": "Published",
+  "startDate": "2026-07-20",
+  "endDate": "2026-07-10",
+  "overview": "This record intentionally lacks a parent campaign.",
+  "sourceRecordUrls": []
+}
