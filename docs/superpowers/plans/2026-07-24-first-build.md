@@ -1199,7 +1199,7 @@ git commit -m "feat: add workspace administration"
 - PostgreSQL is internal-only.
 - Backup output: encrypted PostgreSQL custom dump named `*.dump.age`.
 
-- [ ] **Step 1: Verify the Docker prerequisite**
+- [x] **Step 1: Verify the Docker prerequisite**
 
 Run:
 
@@ -1211,11 +1211,11 @@ docker compose -f docker-compose.test.yml ps
 
 Expected: Docker and Compose succeed; `postgres-test` is healthy.
 
-- [ ] **Step 2: Write the failing backup/restore test**
+- [x] **Step 2: Write the failing backup/restore test**
 
 The script creates a disposable database, inserts a workspace plus one campaign, runs backup, restores to a second disposable database, and asserts the restored campaign exists. It must fail if the backup key is absent or wrong.
 
-- [ ] **Step 3: Implement deployment files and scripts**
+- [x] **Step 3: Implement deployment files and scripts**
 
 Requirements:
 
@@ -1231,7 +1231,7 @@ Requirements:
 - The age identity file is supplied separately, must be mode `0600`, and is never stored in the backup archive.
 - Restore refuses to target the configured production database name.
 
-- [ ] **Step 4: Run operational verification**
+- [x] **Step 4: Run operational verification**
 
 ```bash
 docker compose config
@@ -1244,7 +1244,7 @@ docker compose down
 
 Expected: config/build/migration/restore pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Dockerfile docker-compose.yml Caddyfile scripts/backup.sh scripts/restore.sh docs/runbooks tests/ops
