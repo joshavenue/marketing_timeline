@@ -1,4 +1,11 @@
 import Link from "next/link";
+import { and, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+
+import { RefreshPreflight } from "@/components/settings/RefreshPreflight";
+import { db } from "@/db/client";
+import { connections } from "@/db/schema";
+import { requireCurrentWorkspaceMember } from "@/lib/auth/access";
 
 const databaseNames = [
   "Campaigns",
@@ -8,7 +15,22 @@ const databaseNames = [
   "Manual Metric Observations",
 ];
 
-export default function NotionSettingsPage() {
+export default async function NotionSettingsPage() {
+  let member;
+  try {
+    member = await requireCurrentWorkspaceMember();
+  } catch {
+    redirect("/login");
+  }
+  const notionConnections = await db
+    .select({ id: connections.id, name: connections.name })
+    .from(connections)
+    .where(
+      and(
+        eq(connections.workspaceId, member.workspaceId),
+        eq(connections.connectorKey, "notion"),
+      ),
+    );
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -61,6 +83,10 @@ export default function NotionSettingsPage() {
           </span>
         </div>
       </section>
+      <RefreshPreflight
+        connections={notionConnections}
+        isAdmin={member.role === "admin"}
+      />
     </main>
   );
 }

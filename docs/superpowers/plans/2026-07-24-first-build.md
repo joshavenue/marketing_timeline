@@ -1014,7 +1014,7 @@ export interface RefreshPreflight {
 }
 ```
 
-- [ ] **Step 1: Write failing policy tests**
+- [x] **Step 1: Write failing policy tests**
 
 Test:
 
@@ -1025,19 +1025,19 @@ Test:
 - A member cannot create or approve a refresh.
 - A frozen object never appears in the queued job items.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/refresh-policy.test.ts`
 
 Expected: FAIL because policy functions do not exist.
 
-- [ ] **Step 3: Implement preflight and PostgreSQL job claiming**
+- [x] **Step 3: Implement preflight and PostgreSQL job claiming**
 
 Use a transaction and `SELECT ... FOR UPDATE SKIP LOCKED` to claim one queued job. Store an idempotency key derived from workspace, connection, operation, object, and observation window. The worker writes a raw snapshot before normalization. Do not auto-retry 429/503; store `retryAt` from upstream headers and require admin confirmation for a retry.
 
 Register Notion as a zero-estimated-cost connector that bypasses metric freeze but still requires an admin-confirmed manual job. Wrap `syncNotionWorkspace` rather than duplicating its import logic. Reset usage counters at the start of each UTC calendar month.
 
-- [ ] **Step 4: Run integration checks**
+- [x] **Step 4: Run integration checks**
 
 Run:
 
@@ -1048,7 +1048,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/connectors src/lib/refresh scripts/worker.ts src/app/api/jobs src/app/'(dashboard)'/settings/notion/page.tsx src/components/settings/RefreshPreflight.tsx tests/unit/refresh-policy.test.ts tests/integration/refresh-jobs.test.ts
