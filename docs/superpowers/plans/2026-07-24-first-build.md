@@ -888,7 +888,7 @@ git commit -m "feat: add historical marketing timeline"
 - Supported formula keys in V1: `budget_variance`, `engagement_rate`, `cost_per_result`.
 - Produces: `deriveFreshness(input: { observedAt: Date; frozenAt: Date | null; now: Date }): Freshness`
 
-- [ ] **Step 1: Write failing metric tests**
+- [x] **Step 1: Write failing metric tests**
 
 Test exact formulas:
 
@@ -902,23 +902,23 @@ expect(() => calculateMetric("cost_per_result", { cost: 20, results: 0 })).toThr
 
 Also test frozen status wins over stale/fresh.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/metrics.test.ts`
 
 Expected: FAIL because metric functions do not exist.
 
-- [ ] **Step 3: Implement details**
+- [x] **Step 3: Implement details**
 
 The drawer opens through an intercepted route or URL-controlled overlay so deep links work. Closing it returns to the exact timeline URL and scroll position. The full page includes hierarchy, lifecycle status, dates, planned budget, actual spend, contributions, raw metrics, calculated formulas and inputs, citations, last-read status, source version history, and source-deleted flag.
 
 Never render raw credential-bearing request headers or unredacted raw API payloads.
 
-- [ ] **Step 4: Add and run E2E tests**
+- [x] **Step 4: Add and run E2E tests**
 
 Assert marker → drawer → full page → back preserves the timeline. Assert raw/calculated labels and citation links.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 pnpm test tests/unit/metrics.test.ts

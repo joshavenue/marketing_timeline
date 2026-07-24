@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { HistoryTimeline } from "@/components/timeline/HistoryTimeline";
+import { InitiativeDrawer } from "@/components/initiatives/InitiativeDrawer";
+import { getInitiativeDetail } from "@/db/queries/initiative-details";
 import { requireCurrentWorkspaceMember } from "@/lib/auth/access";
 import {
   getTimelineWindow,
@@ -60,6 +62,20 @@ export default async function TimelinePage({
     statuses: status,
     contributors: contributor,
   });
+  const timelineSearch = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (key !== "initiative" && typeof value === "string") {
+      timelineSearch.set(key, value);
+    }
+  }
+  const timelineHref = `/timeline${
+    timelineSearch.size ? `?${timelineSearch.toString()}` : ""
+  }`;
+  const selectedInitiativeId =
+    typeof params.initiative === "string" ? params.initiative : null;
+  const selectedInitiative = selectedInitiativeId
+    ? await getInitiativeDetail(member.workspaceId, selectedInitiativeId)
+    : null;
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-8">
@@ -120,8 +136,16 @@ export default async function TimelinePage({
         end={model.end}
         events={model.events}
         start={model.start}
+        timelineHref={timelineHref}
         zoom={model.zoom}
       />
+      {selectedInitiative ? (
+        <InitiativeDrawer
+          backHref={timelineHref}
+          detail={selectedInitiative}
+          fullPageHref={`/initiatives/${selectedInitiative.id}?from=${encodeURIComponent(timelineHref)}`}
+        />
+      ) : null}
     </main>
   );
 }

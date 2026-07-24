@@ -5,9 +5,11 @@ import type { TimelineLayoutEvent } from "@/lib/timeline/query";
 export function TimelineEvent({
   event,
   left,
+  timelineHref,
 }: {
   event: TimelineLayoutEvent;
   left: number;
+  timelineHref: string;
 }) {
   const isTop = event.side === "top";
   return (
@@ -32,7 +34,7 @@ export function TimelineEvent({
       />
       <Link
         className="group block rounded-2xl border border-black/10 bg-white/95 p-4 shadow-[0_12px_35px_rgba(35,35,31,0.08)] transition hover:-translate-y-0.5 hover:border-black/25 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        href={`/initiatives/${event.id}`}
+        href={`${timelineHref}${timelineHref.includes("?") ? "&" : "?"}initiative=${event.id}`}
       >
         <time className="text-xs font-semibold tracking-wide text-blue-700">
           {event.start}

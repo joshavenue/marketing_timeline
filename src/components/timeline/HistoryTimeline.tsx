@@ -27,11 +27,13 @@ export function HistoryTimeline({
   start,
   end,
   zoom,
+  timelineHref,
 }: {
   events: TimelineLayoutEvent[];
   start: string;
   end: string;
   zoom: TimelineZoom;
+  timelineHref: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -164,7 +166,12 @@ export function HistoryTimeline({
             </span>
           </div>
           {positioned.map(({ event, left }) => (
-            <TimelineEvent event={event} key={event.id} left={left} />
+            <TimelineEvent
+              event={event}
+              key={event.id}
+              left={left}
+              timelineHref={timelineHref}
+            />
           ))}
           {events.length === 0 ? (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-10 rounded-2xl border border-dashed border-black/15 bg-white/80 px-6 py-4 text-sm text-black/45">

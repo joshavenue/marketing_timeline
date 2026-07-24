@@ -4,8 +4,15 @@ import { mkdir } from "node:fs/promises";
 import { db } from "@/db/client";
 import {
   campaigns,
+  connections,
+  initiativeMetrics,
   initiatives,
   memberships,
+  metricDefinitions,
+  metricObservations,
+  sourceSnapshots,
+  timelineEventContributors,
+  timelineEvents,
   users,
 } from "@/db/schema";
 import { createWorkspace } from "@/db/queries/workspaces";
@@ -78,7 +85,7 @@ export default async function globalSetup(config: FullConfig) {
       sourceUrlsJson: [],
     })
     .returning({ id: campaigns.id });
-  await db.insert(initiatives).values([
+  const seededInitiatives = await db.insert(initiatives).values([
     {
       workspaceId: workspace.id,
       externalId: "e2e-past",
@@ -99,8 +106,12 @@ export default async function globalSetup(config: FullConfig) {
       publicationStatus: "published",
       startDate: shift(-7),
       endDate: shift(7),
+      ownerName: "Person A",
+      plannedBudget: "1000",
+      actualSpend: "820",
+      overview: "Launch the token pre-sales story across social channels.",
       displayLevel: "primary",
-      sourceUrlsJson: [],
+      sourceUrlsJson: ["https://www.notion.so/example-initiative"],
     },
     {
       workspaceId: workspace.id,
@@ -113,7 +124,93 @@ export default async function globalSetup(config: FullConfig) {
       displayLevel: "primary",
       sourceUrlsJson: [],
     },
-  ]);
+  ]).returning({ id: initiatives.id, externalId: initiatives.externalId });
+  const active = seededInitiatives.find(
+    (initiative) => initiative.externalId === "e2e-active",
+  )!;
+  const [event] = await db.insert(timelineEvents).values({
+    workspaceId: workspace.id,
+    externalId: "e2e-active-post",
+    initiativeId: active.id,
+    title: "Token Pre-Sales social posting",
+    kind: "post",
+    publicationStatus: "published",
+    startDate: shift(-6),
+    displayLevel: "nested",
+    sourceUrlsJson: [],
+    externalUrlsJson: [],
+  }).returning({ id: timelineEvents.id });
+  await db.insert(timelineEventContributors).values({
+    workspaceId: workspace.id,
+    eventId: event!.id,
+    contributorName: "Person A",
+  });
+  const [connection] = await db.insert(connections).values({
+    workspaceId: workspace.id,
+    connectorKey: "notion",
+    name: "E2E Notion",
+    usagePeriodStart: iso(today),
+  }).returning({ id: connections.id });
+  const [snapshot] = await db.insert(sourceSnapshots).values({
+    workspaceId: workspace.id,
+    connectionId: connection!.id,
+    externalObjectId: "e2e-active",
+    operationKey: "query",
+    requestScopeJson: {},
+    requestChecksum: "request-e2e",
+    responseJson: {},
+    checksum: "response-e2e",
+    observedAt: today,
+  }).returning({ id: sourceSnapshots.id });
+  const definitions = await db.insert(metricDefinitions).values([
+    {
+      workspaceId: workspace.id,
+      externalId: "e2e-impressions",
+      name: "Post impressions",
+      kind: "raw",
+      connectorKey: "x_post",
+      connectionName: "X posts",
+      externalMetricKey: "impressions",
+      unit: "views",
+      aggregation: "sum",
+      publicationStatus: "published",
+    },
+    {
+      workspaceId: workspace.id,
+      externalId: "e2e-engagement-rate",
+      name: "Engagement rate",
+      kind: "calculated",
+      connectorKey: "x_post",
+      connectionName: "X posts",
+      externalMetricKey: "engagement_rate",
+      unit: "ratio",
+      aggregation: "formula",
+      formulaKey: "engagement_rate",
+      publicationStatus: "published",
+    },
+  ]).returning({ id: metricDefinitions.id, externalId: metricDefinitions.externalId });
+  await db.insert(initiativeMetrics).values(
+    definitions.map((definition) => ({
+      workspaceId: workspace.id,
+      initiativeId: active.id,
+      metricDefinitionId: definition.id,
+    })),
+  );
+  await db.insert(metricObservations).values(
+    definitions.map((definition, index) => ({
+      workspaceId: workspace.id,
+      metricDefinitionId: definition.id,
+      initiativeId: active.id,
+      sourceSnapshotId: snapshot!.id,
+      periodStart: new Date(`${shift(-7)}T00:00:00Z`),
+      periodEnd: new Date(`${shift(7)}T00:00:00Z`),
+      value: index === 0 ? "12500" : "0.042",
+      unit: index === 0 ? "views" : "ratio",
+      freshness: "fresh" as const,
+      sourceUrl: "https://analytics.x.com/example-post",
+      observedAt: today,
+    })),
+  );
 
   await mkdir("test-results", { recursive: true });
   await authenticate(baseURL, "admin@example.test", "test-results/admin.json");
