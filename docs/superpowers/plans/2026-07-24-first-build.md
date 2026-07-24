@@ -598,7 +598,7 @@ git commit -m "feat: add workspace-scoped data model"
 - Produces: `createInvitation(input: { workspaceId: string; email: string; role: WorkspaceRole; invitedBy: string }): Promise<{ token: string }>`
 - Produces: `acceptInvitation(token: string, googleEmail: string): Promise<void>`
 
-- [ ] **Step 1: Write failing authorization tests**
+- [x] **Step 1: Write failing authorization tests**
 
 Cover:
 
@@ -610,13 +610,13 @@ await expect(acceptInvitation(validToken, "other@example.com")).rejects.toThrow(
 );
 ```
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/access.test.ts tests/integration/invitations.test.ts`
 
 Expected: FAIL because the access and invitation services do not exist.
 
-- [ ] **Step 3: Implement Auth.js and invitation flow**
+- [x] **Step 3: Implement Auth.js and invitation flow**
 
 Configure the Google provider from `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`. In the Auth.js `signIn` callback:
 
@@ -630,7 +630,7 @@ Invitation tokens are random 32-byte values; store only a SHA-256 token hash. Ex
 
 For Playwright only, conditionally register an Auth.js Credentials provider when `APP_ENV=test` and `E2E_TEST_MODE=1`. It may sign in only pre-seeded `E2E_TEST_ADMIN_EMAIL` and `E2E_TEST_MEMBER_EMAIL`. `global.setup.ts` seeds those users and memberships and stores browser authentication states. Production startup must fail if `E2E_TEST_MODE=1`.
 
-- [ ] **Step 4: Run auth checks**
+- [x] **Step 4: Run auth checks**
 
 Run:
 
@@ -641,7 +641,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/auth.ts src/proxy.ts src/lib/auth src/lib/mail src/app/api/auth src/app/login src/app/invite tests/unit/access.test.ts tests/integration/invitations.test.ts tests/e2e/global.setup.ts

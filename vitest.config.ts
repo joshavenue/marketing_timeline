@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    fileParallelism: false,
     env: {
       APP_ENV: "test",
       DATABASE_URL:
