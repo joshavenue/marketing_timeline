@@ -1148,21 +1148,21 @@ git commit -m "feat: import separate X analytics contexts"
 - Connection list responses exclude ciphertext.
 - Skill activation displays version and checksum.
 
-- [ ] **Step 1: Write failing admin E2E tests**
+- [x] **Step 1: Write failing admin E2E tests**
 
 Assert a member receives 403/redirect for settings mutations. Assert an admin can create named Notion and X connections, upload an `X_API.md` under 256 KiB, activate a version, set a hard cap, and view matching audit events. Assert credential values never reappear after submission.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm exec playwright test tests/e2e/admin-settings.spec.ts --project=chromium`
 
 Expected: FAIL because settings pages do not exist.
 
-- [ ] **Step 3: Implement admin pages**
+- [x] **Step 3: Implement admin pages**
 
 Use server actions or route handlers with server-side authorization. Show connection health, last successful read, last error, active skill version, current-period usage, hard cap, and freeze policy. Every credential rotation and cap change requires an explicit confirmation form submission and audit event.
 
-- [ ] **Step 4: Run checks**
+- [x] **Step 4: Run checks**
 
 ```bash
 pnpm exec playwright test tests/e2e/admin-settings.spec.ts --project=chromium
@@ -1172,7 +1172,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/'(dashboard)'/settings src/components/settings tests/e2e/admin-settings.spec.ts
