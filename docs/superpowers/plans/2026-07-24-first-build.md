@@ -310,7 +310,7 @@ Expected: `pg_isready` reports “accepting connections”.
 - Produces: `readServerEnv(input?: NodeJS.ProcessEnv): ServerEnv`.
 - Produces: `GET /api/health` returning `{ status: "ok" }`.
 
-- [ ] **Step 1: Add package metadata and dependencies**
+- [x] **Step 1: Add package metadata and dependencies**
 
 Create scripts with these exact names:
 
@@ -339,7 +339,7 @@ pnpm add next@latest react@latest react-dom@latest next-auth zod drizzle-orm@rc 
 pnpm add -D typescript @types/node @types/react @types/react-dom @types/pg @types/nodemailer drizzle-kit@rc tsx vitest @vitest/coverage-v8 @testing-library/react @testing-library/jest-dom jsdom @playwright/test eslint eslint-config-next tailwindcss @tailwindcss/postcss
 ```
 
-- [ ] **Step 2: Write the failing environment test**
+- [x] **Step 2: Write the failing environment test**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -364,13 +364,13 @@ describe("readServerEnv", () => {
 });
 ```
 
-- [ ] **Step 3: Verify the test fails**
+- [x] **Step 3: Verify the test fails**
 
 Run: `pnpm test tests/unit/env.test.ts`
 
 Expected: FAIL because `@/lib/env` does not exist.
 
-- [ ] **Step 4: Implement the environment parser, contracts, root page, and health route**
+- [x] **Step 4: Implement the environment parser, contracts, root page, and health route**
 
 `ServerEnv` must require `DATABASE_URL`, a 32-character-or-longer `AUTH_SECRET`, an absolute `APP_ORIGIN`, and a base64-encoded 32-byte `CREDENTIAL_ENCRYPTION_KEY`. OAuth, SMTP, Notion, X, backup, and production-domain variables remain optional at parse time and are validated when their corresponding feature is enabled. `APP_ENV` is exactly `development`, `test`, or `production`. `E2E_TEST_MODE=1` is accepted only when `APP_ENV=test` and `APP_ORIGIN` uses `localhost`; reject every other combination.
 
@@ -413,7 +413,7 @@ CREDENTIAL_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
 Use the exact locked domain contracts above. The root page redirects authenticated users later; for this task it renders “Marketing Timeline Dashboard”. The health route returns status 200 and `{ "status": "ok" }`.
 
-- [ ] **Step 5: Run the foundation checks**
+- [x] **Step 5: Run the foundation checks**
 
 Run:
 
@@ -426,7 +426,7 @@ pnpm build
 
 Expected: all commands exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json pnpm-lock.yaml tsconfig.json next.config.ts postcss.config.mjs eslint.config.mjs vitest.config.ts playwright.config.ts .gitignore .env.example src tests/unit/env.test.ts
