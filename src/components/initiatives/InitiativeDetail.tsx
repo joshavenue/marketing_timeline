@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CommentThread } from "@/components/comments/CommentThread";
 import { MetricSeries } from "@/components/metrics/MetricSeries";
 import type { getInitiativeDetail } from "@/db/queries/initiative-details";
 import { calculateMetric } from "@/lib/metrics/calculate";
@@ -117,6 +118,7 @@ export function InitiativeDetail({
           </div>
         </section>
       </div>
+      <CommentThread entityId={detail.id} entityType="initiative" />
     </article>
   );
 }

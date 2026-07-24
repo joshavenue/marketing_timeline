@@ -944,21 +944,21 @@ git commit -m "feat: show initiative evidence and metrics"
 - Produces: `listComments(workspaceId: string, entityType: "initiative" | "event", entityId: string): Promise<CommentView[]>`
 - Mention syntax: `@[Display Name](user:<uuid>)`.
 
-- [ ] **Step 1: Write failing service tests**
+- [x] **Step 1: Write failing service tests**
 
 Cover top-level comment, one reply, mention notification creation, no notification for self-mention, and rejection when a mentioned user is not a member of the same workspace.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/integration/comments.test.ts`
 
 Expected: FAIL because services do not exist.
 
-- [ ] **Step 3: Implement services and UI**
+- [x] **Step 3: Implement services and UI**
 
 Sanitize comment text as plain text plus parsed mention tokens; do not render arbitrary HTML. Limit comment length to 10,000 characters. Replies have one parent level in V1. A notification links to the entity and comment ID.
 
-- [ ] **Step 4: Run service and E2E checks**
+- [x] **Step 4: Run service and E2E checks**
 
 ```bash
 pnpm test tests/integration/comments.test.ts
@@ -967,7 +967,7 @@ pnpm exec playwright test tests/e2e/comments.spec.ts --project=chromium
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/comments src/lib/notifications src/components/comments src/app/'(dashboard)'/notifications tests/integration/comments.test.ts tests/e2e/comments.spec.ts
