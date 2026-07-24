@@ -219,7 +219,7 @@ Caddyfile
 **Interfaces:**
 - Produces: PostgreSQL 18 test database at `postgresql://marketing_test:marketing_test@127.0.0.1:55432/marketing_test`.
 
-- [ ] **Step 1: Install Docker Engine and Compose from the official Ubuntu repository**
+- [x] **Step 1: Install Docker Engine and Compose from the official Ubuntu repository**
 
 Run:
 
@@ -247,7 +247,7 @@ docker run --rm hello-world
 
 Expected: Docker, Compose, and `hello-world` succeed.
 
-- [ ] **Step 2: Create the isolated test database**
+- [x] **Step 2: Create the isolated test database**
 
 `docker-compose.test.yml`:
 
@@ -272,7 +272,7 @@ services:
 
 Document start, stop, and connection commands in `docs/runbooks/developer-setup.md`.
 
-- [ ] **Step 3: Verify and commit**
+- [x] **Step 3: Verify and commit**
 
 ```bash
 docker compose -f docker-compose.test.yml up -d
