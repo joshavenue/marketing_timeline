@@ -540,23 +540,23 @@ refresh_job_items(workspace_id, idempotency_key)
 metric_observations(workspace_id, metric_definition_id, period_start, period_end, source_snapshot_id)
 ```
 
-- [ ] **Step 1: Write the failing workspace-isolation test**
+- [x] **Step 1: Write the failing workspace-isolation test**
 
 Create two workspaces, one initiative in each, and assert `listTimelineRows(workspaceA.id, ...)` returns only workspace A. Also assert insertion of a duplicate `(workspace_id, external_id)` fails.
 
-- [ ] **Step 2: Verify the test fails**
+- [x] **Step 2: Verify the test fails**
 
 Run: `pnpm test tests/integration/db-schema.test.ts`
 
 Expected: FAIL because the schema and database helper do not exist.
 
-- [ ] **Step 3: Implement the schema and queries**
+- [x] **Step 3: Implement the schema and queries**
 
 Use PostgreSQL enums matching the locked string unions. Monetary columns use `numeric(20, 6)`. Metric values use `numeric(30, 10)`. Raw JSON responses use `jsonb`. Store credential ciphertext as text and never return it from general connection queries.
 
 Every query function accepts `workspaceId` as its first argument. Do not create a query that infers workspace from a record ID alone.
 
-- [ ] **Step 4: Generate and apply migrations**
+- [x] **Step 4: Generate and apply migrations**
 
 Run:
 
@@ -568,7 +568,7 @@ pnpm test tests/integration/db-schema.test.ts
 
 Expected: migration succeeds; integration test passes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add drizzle.config.ts drizzle src/db tests/helpers tests/integration/db-schema.test.ts
