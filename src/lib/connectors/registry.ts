@@ -1,6 +1,9 @@
 import type { ConnectorKey } from "@/domain/contracts";
 import type { ReadOnlyConnector } from "@/lib/connectors/types";
 import { syncNotionWorkspace } from "@/lib/notion/sync";
+import { xAccountConnector } from "@/lib/connectors/x/account";
+import { xAdsConnector } from "@/lib/connectors/x/ads";
+import { xPostConnector } from "@/lib/connectors/x/post";
 
 const connectors = new Map<ConnectorKey, ReadOnlyConnector>();
 
@@ -31,3 +34,6 @@ registerConnector({
     return { response, observedAt: new Date(), snapshotManaged: true };
   },
 });
+registerConnector(xPostConnector);
+registerConnector(xAccountConnector);
+registerConnector(xAdsConnector);

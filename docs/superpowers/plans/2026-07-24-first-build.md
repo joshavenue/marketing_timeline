@@ -1078,7 +1078,7 @@ git commit -m "feat: add guarded manual refresh jobs"
 - Allowlisted HTTP method: `GET` only for the first build.
 - Every operation must exist in the active skill's validated `connector-manifest`.
 
-- [ ] **Step 1: Write failing contract tests from sanitized real-shaped fixtures**
+- [x] **Step 1: Write failing contract tests from sanitized real-shaped fixtures**
 
 Post test expects public, non-public, organic, and promoted fields only when present. Account test expects supported `public_metrics` such as followers and post count. Ads test expects requested entity metrics and converts `billed_charge_local_micro` to workspace currency units without losing the raw micro value.
 
@@ -1092,13 +1092,13 @@ Add one explicit test proving a requested account metric absent from the respons
 }
 ```
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/contract/x-post.test.ts tests/contract/x-account.test.ts tests/contract/x-ads.test.ts`
 
 Expected: FAIL because X adapters do not exist.
 
-- [ ] **Step 3: Implement the allowlisted X client**
+- [x] **Step 3: Implement the allowlisted X client**
 
 Rules:
 

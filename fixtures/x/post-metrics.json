@@ -1,0 +1,10 @@
+{
+  "data": [{
+    "id": "1840000000000000000",
+    "public_metrics": {"retweet_count": 12, "reply_count": 4, "like_count": 95, "quote_count": 3, "impression_count": 12500},
+    "non_public_metrics": {"url_link_clicks": 48, "user_profile_clicks": 31},
+    "organic_metrics": {"impression_count": 12000, "like_count": 90},
+    "promoted_metrics": {"impression_count": 500, "like_count": 5}
+  }],
+  "meta": {"result_count": 1}
+}
