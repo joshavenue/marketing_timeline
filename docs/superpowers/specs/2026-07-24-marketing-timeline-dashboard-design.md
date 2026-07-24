@@ -1,10 +1,12 @@
 # Marketing Timeline Dashboard — Master Product Requirements and Design
 
-**Status:** Approved design draft for user review  
+**Status:** Approved design
 **Date:** 2026-07-24  
 **Deployment target:** Self-hosted VPS  
 **Initial workspace:** Tessera Lab  
 **Primary decision:** Explain which past marketing initiatives aligned with company growth using cited source evidence.
+
+**First-build execution plan:** [`docs/superpowers/plans/2026-07-24-first-build.md`](../plans/2026-07-24-first-build.md)
 
 ## 1. Executive summary
 
@@ -506,7 +508,9 @@ It teaches the integrated LLM:
 
 One skill version is active for a connector type. Prior versions remain available.
 
-The document is not executable code. The LLM may select and parameterize an approved read operation, but a deterministic guard enforces allowlisted domains, methods, schemas, caps, freeze rules, and credential boundaries. Deterministic product output comes from validation, normalization, caching, and fixed calculations rather than from the LLM itself.
+The document contains exactly one fenced `connector-manifest` JSON block. Code validates this block against a fixed schema and uses it to enforce hosts, methods, paths, parameter types, and response-field allowlists. The surrounding Markdown teaches the LLM how and when to use those operations.
+
+The document is not executable code. The LLM may select and parameterize an approved read operation, but a deterministic guard enforces the validated manifest, caps, freeze rules, and credential boundaries. Deterministic product output comes from validation, normalization, caching, and fixed calculations rather than from the LLM itself.
 
 A changed skill displays a version diff and impact preview. Reprocessing historical cached records requires explicit admin selection and confirmation.
 
@@ -662,6 +666,7 @@ No failure silently replaces, deletes, or fabricates a value.
 - Restore is rehearsed against a non-production database before launch and periodically afterward.
 - A restore preserves workspace boundaries, source versions, comments, audit history, and connector configuration.
 - Backups include only encrypted credential ciphertext. The encryption key is stored separately from both the VPS and backup archive and is required during restore.
+- PostgreSQL custom dumps are encrypted with an age public-key recipient before upload; the age identity key is stored separately from the VPS and backup archive.
 
 ## 16. Performance and scale
 
