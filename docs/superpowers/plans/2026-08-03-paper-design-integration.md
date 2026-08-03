@@ -100,45 +100,45 @@ git commit -m "feat: preserve timeline hierarchy metadata"
 - Produces: `GrowthSeriesReadModel { definition, points, freezeAgeDays, latestValue, changePercent } | null`.
 - Consumes the same `workspaceId`, `start`, and `end` used by `getTimelineWindow` plus an optional selected metric-definition ID.
 
-- [ ] **Step 1: Write the failing workspace/window integration test**
+- [x] **Step 1: Write the failing workspace/window integration test**
 
 Seed two workspaces and observations inside and outside the requested dates. Assert only published definitions and observations for the requested workspace/window are returned, ordered by `periodStart`.
 
-- [ ] **Step 2: Run the integration test and verify RED**
+- [x] **Step 2: Run the integration test and verify RED**
 
 Run: `pnpm vitest run tests/integration/growth-series.test.ts`
 
 Expected: FAIL because `listGrowthSeries` does not exist.
 
-- [ ] **Step 3: Implement the database query**
+- [x] **Step 3: Implement the database query**
 
 Join `metricDefinitions`, `metricObservations`, and the matching `connections` row using workspace, connector key, and connection name. Select `freezeAgeDays` from the connection and filter observations by overlapping period bounds.
 
-- [ ] **Step 4: Write failing calculation tests**
+- [x] **Step 4: Write failing calculation tests**
 
 Cover ordered points, an explicit missing-period gap, latest value, percent change from first to latest, a zero baseline returning `null`, and connection-specific freeze days.
 
-- [ ] **Step 5: Run calculation tests and verify RED**
+- [x] **Step 5: Run calculation tests and verify RED**
 
 Run: `pnpm vitest run tests/unit/growth-series.test.ts`
 
 Expected: FAIL because `buildGrowthSeriesReadModel` does not exist.
 
-- [ ] **Step 6: Implement the pure growth-series mapper**
+- [x] **Step 6: Implement the pure growth-series mapper**
 
 Create `buildGrowthSeriesReadModel` without interpolating missing values. Return numeric display values separately from raw database strings and preserve source URL/freshness on every point.
 
-- [ ] **Step 7: Add the growth model to `TimelineReadModel`**
+- [x] **Step 7: Add the growth model to `TimelineReadModel`**
 
 Load selectable published metrics and the chosen series in parallel with timeline rows. Default to the first published definition only when no metric ID is supplied.
 
-- [ ] **Step 8: Verify Task 2**
+- [x] **Step 8: Verify Task 2**
 
 Run: `pnpm vitest run tests/integration/growth-series.test.ts tests/unit/growth-series.test.ts tests/unit/timeline-layout.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/db/queries/growth-series.ts src/lib/metrics/growth-series.ts src/lib/timeline/query.ts tests/integration/growth-series.test.ts tests/unit/growth-series.test.ts
