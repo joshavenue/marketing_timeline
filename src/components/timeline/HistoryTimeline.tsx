@@ -22,6 +22,12 @@ function dayNumber(value: string) {
   return Date.parse(`${value}T00:00:00.000Z`) / 86_400_000;
 }
 
+function timelineHrefWithZoom(timelineHref: string, zoom: TimelineZoom) {
+  const url = new URL(timelineHref, "http://timeline.local");
+  url.searchParams.set("zoom", zoom);
+  return `${url.pathname}?${url.searchParams.toString()}`;
+}
+
 export function HistoryTimeline({
   events,
   start,
@@ -120,16 +126,18 @@ export function HistoryTimeline({
   }
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-black/10 bg-[#f7f5ef] shadow-[0_25px_70px_rgba(35,35,31,0.08)]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white/80 px-5 py-4">
+    <section className="overflow-hidden rounded-[var(--radius-panel)] border border-black/10 bg-[var(--color-fog)]/40">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white px-5 py-3">
         <div className="flex items-center gap-1 rounded-full bg-black/[0.045] p-1">
           {(["year", "quarter", "month", "week"] as const).map((value) => (
             <Link
               aria-current={zoom === value ? "page" : undefined}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize ${
-                zoom === value ? "bg-black text-white" : "text-black/55"
+              className={`grid min-h-8 place-items-center rounded-full px-3 text-xs font-medium capitalize ${
+                zoom === value
+                  ? "bg-[var(--color-ocean)] text-white"
+                  : "text-[var(--color-muted)]"
               }`}
-              href={`?zoom=${value}`}
+              href={timelineHrefWithZoom(timelineHref, value)}
               key={value}
             >
               {value}
@@ -137,7 +145,7 @@ export function HistoryTimeline({
           ))}
         </div>
         <button
-          className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-medium"
+          className="min-h-10 rounded-full bg-[var(--color-signal)] px-5 text-sm font-semibold text-[var(--color-ink)]"
           onClick={jumpToToday}
           type="button"
         >
@@ -157,11 +165,11 @@ export function HistoryTimeline({
           <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-black/70" />
           <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[7px] border-l-[12px] border-y-transparent border-l-black/70" />
           <div
-            className="absolute top-12 bottom-12 w-px bg-rose-500/70"
+            className="absolute top-12 bottom-12 w-px bg-[var(--color-signal)]"
             data-testid="today-marker"
             style={{ left: todayLeft }}
           >
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-600 px-2 py-1 text-[10px] font-semibold text-white">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-signal)] px-3 py-1 text-[11px] font-semibold text-[var(--color-ink)]">
               Today
             </span>
           </div>

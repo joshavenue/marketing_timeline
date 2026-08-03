@@ -13,6 +13,28 @@ test.describe("historical timeline", () => {
   }) => {
     await page.goto("/timeline");
 
+    await expect(
+      page.getByRole("link", { name: "Marketing Timeline" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "History" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page.getByText("Past → present → future")).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Campaign" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+    await expect(
+      page.getByRole("combobox", { name: "Contributor" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Quarter" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page.getByRole("link", { name: "Clear filters" })).toBeVisible();
+    const jumpToToday = page.getByRole("button", { name: "Jump to today" });
+    await jumpToToday.focus();
+    await expect(jumpToToday).toBeFocused();
+
     const scroller = page.getByTestId("timeline-scroll");
     await expect(page.getByTestId("today-marker")).toBeVisible();
     await expect(page.getByTestId("timeline-marker")).toHaveCount(4);

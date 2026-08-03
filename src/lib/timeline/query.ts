@@ -50,6 +50,11 @@ export interface TimelineReadModel {
   events: TimelineLayoutEvent[];
   growthOptions: GrowthSeriesOption[];
   growthSeries: GrowthSeriesReadModel | null;
+  filters: {
+    campaigns: Array<{ id: string; name: string }>;
+    statuses: string[];
+    contributors: string[];
+  };
 }
 
 export function layoutTimelineEvents(
@@ -102,6 +107,16 @@ export async function getTimelineWindow(
       })
     : null;
   const query = input.query?.trim().toLowerCase();
+  const filters = {
+    campaigns: cachedRows
+      .filter((row) => row.kind === "campaign")
+      .map((row) => ({ id: row.id, name: row.title }))
+      .sort((left, right) => left.name.localeCompare(right.name)),
+    statuses: [...new Set(cachedRows.flatMap((row) => row.status ? [row.status] : []))]
+      .sort((left, right) => left.localeCompare(right)),
+    contributors: [...new Set(cachedRows.flatMap((row) => row.contributors))]
+      .sort((left, right) => left.localeCompare(right)),
+  };
   const filtered = cachedRows.filter((row) => {
     if (
       input.campaignIds?.length &&
@@ -131,6 +146,7 @@ export async function getTimelineWindow(
     zoom: input.zoom,
     growthOptions,
     growthSeries: buildGrowthSeriesReadModel(growthRows),
+    filters,
     events: layoutTimelineEvents(
       filtered.map((row) => ({
         id: row.id,

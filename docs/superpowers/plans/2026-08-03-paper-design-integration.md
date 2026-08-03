@@ -212,35 +212,35 @@ git commit -m "feat: assemble cited initiative evidence"
 - `TimelineFilters` receives current query parameters and live campaign/status/contributor options.
 - Form submissions preserve date window, selected metric, and zoom.
 
-- [ ] **Step 1: Add failing browser assertions for the approved shell**
+- [x] **Step 1: Add failing browser assertions for the approved shell**
 
 Assert the product mark, History navigation state, `Past → present → future`, maritime filter labels, Quarter selection, clear-filters action, and Jump to today button are visible and keyboard reachable.
 
-- [ ] **Step 2: Run the timeline browser test and verify RED**
+- [x] **Step 2: Run the timeline browser test and verify RED**
 
 Run: `pnpm playwright test tests/e2e/timeline.spec.ts --project=chromium`
 
 Expected: FAIL because the existing page uses free-text ID inputs and the old visual shell.
 
-- [ ] **Step 3: Add approved tokens and base typography**
+- [x] **Step 3: Add approved tokens and base typography**
 
 Move the values from `docs/design-handoff/tokens.css` into `src/app/globals.css`, set Arimo/system fallbacks, add visible `:focus-visible` evidence-blue outlines, and respect `prefers-reduced-motion`.
 
-- [ ] **Step 4: Implement the approved dashboard header**
+- [x] **Step 4: Implement the approved dashboard header**
 
 Use the ocean product mark, centered navigation, selected History indicator, workspace/member area, and 40px targets without changing route authorization.
 
-- [ ] **Step 5: Implement live dropdown filters**
+- [x] **Step 5: Implement live dropdown filters**
 
 Replace ID placeholders with `select` controls populated by workspace-scoped query options. Preserve query parameters and include an explicit Clear link.
 
-- [ ] **Step 6: Verify Task 4**
+- [x] **Step 6: Verify Task 4**
 
 Run: `pnpm playwright test tests/e2e/timeline.spec.ts --project=chromium && pnpm lint && pnpm typecheck`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/app/globals.css src/app/'(dashboard)'/layout.tsx src/app/'(dashboard)'/timeline/page.tsx src/components/timeline/TimelineFilters.tsx tests/e2e/timeline.spec.ts
