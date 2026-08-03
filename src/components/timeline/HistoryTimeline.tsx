@@ -29,6 +29,26 @@ function timelineHrefWithZoom(timelineHref: string, zoom: TimelineZoom) {
   return `${url.pathname}?${url.searchParams.toString()}`;
 }
 
+function formatTimelineTick(value: Date, zoom: TimelineZoom) {
+  const year = value.getUTCFullYear();
+  if (zoom === "year") return String(year);
+  if (zoom === "quarter") {
+    return `Q${Math.floor(value.getUTCMonth() / 3) + 1} ${year}`;
+  }
+  if (zoom === "month") {
+    return value.toLocaleDateString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+      year: "numeric",
+    });
+  }
+  return value.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
 export function HistoryTimeline({
   events,
   start,
@@ -53,6 +73,18 @@ export function HistoryTimeline({
   const todayLeft = Math.min(
     contentWidth,
     Math.max(0, ((dayNumber(today) - startDay) / totalDays) * contentWidth),
+  );
+  const timelineTicks = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, index) => {
+        const ratio = index / 6;
+        const date = new Date((startDay + totalDays * ratio) * 86_400_000);
+        return {
+          label: formatTimelineTick(date, zoom),
+          left: ratio * contentWidth,
+        };
+      }),
+    [contentWidth, startDay, totalDays, zoom],
   );
   const campaignBands = useMemo(
     () =>
@@ -207,6 +239,17 @@ export function HistoryTimeline({
           ))}
           <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-black/70" />
           <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[7px] border-l-[12px] border-y-transparent border-l-black/70" />
+          {timelineTicks.map((tick, index) => (
+            <div
+              className="absolute top-1/2 mt-3 -translate-x-1/2 text-center text-[11px] font-medium text-[var(--color-muted)]"
+              data-testid="timeline-tick"
+              key={`${tick.label}-${index}`}
+              style={{ left: tick.left }}
+            >
+              <span className="mx-auto mb-1 block h-2 w-px bg-black/30" />
+              {tick.label}
+            </div>
+          ))}
           <div
             className="absolute top-12 bottom-12 w-px bg-[var(--color-signal)]"
             data-testid="today-marker"

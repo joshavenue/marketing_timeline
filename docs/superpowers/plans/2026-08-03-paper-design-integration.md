@@ -350,7 +350,7 @@ git commit -m "feat: add cited initiative drawer"
 **Interfaces:**
 - Produces a mergeable PR from `codex/design-handoff` to `main` with no credentials or static placeholder data in production code.
 
-- [ ] **Step 1: Start and migrate the disposable test database**
+- [x] **Step 1: Start and migrate the disposable test database**
 
 Run:
 
@@ -360,13 +360,13 @@ docker compose -f docker-compose.test.yml exec postgres-test pg_isready -U marke
 pnpm db:migrate
 ```
 
-- [ ] **Step 2: Run the complete validation chain**
+- [x] **Step 2: Run the complete validation chain**
 
 Run: `pnpm test && pnpm lint && pnpm typecheck && pnpm build && pnpm test:e2e`
 
 Expected: all unit, integration, contract, and browser tests pass; lint, type checking, and production build exit zero.
 
-- [ ] **Step 3: Inspect scope and secrets**
+- [x] **Step 3: Inspect scope and secrets**
 
 Run:
 
@@ -379,7 +379,7 @@ git diff --name-status origin/main...HEAD
 
 Expected: no whitespace errors, no uncommitted application changes, and no production environment file tracked.
 
-- [ ] **Step 4: Visually compare the live browser to the Paper exports**
+- [x] **Step 4: Visually compare the live browser to the Paper exports**
 
 Capture the timeline with and without an open drawer at 1440px. Compare hierarchy, gutters, colors, type scale, timeline axis, growth rail, drawer width, focus states, and empty/error states against `docs/design-handoff/assets/desktop-homepage.png` and `initiative-drawer.png`.
 

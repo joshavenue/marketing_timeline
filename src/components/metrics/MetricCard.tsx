@@ -1,5 +1,14 @@
 import { deriveFreshness } from "@/lib/metrics/freshness";
 
+function formatMetricValue(value: string | null) {
+  if (value === null) return "No reading";
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return value;
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+}
+
 export function MetricCard({
   metric,
 }: {
@@ -38,7 +47,7 @@ export function MetricCard({
         </span>
       </div>
       <p className="mt-4 text-3xl font-semibold">
-        {metric.value ?? "No reading"}{" "}
+        <span>{formatMetricValue(metric.value)}</span>{" "}
         <span className="text-sm font-normal text-black/45">{metric.unit}</span>
       </p>
       {metric.formulaKey ? (

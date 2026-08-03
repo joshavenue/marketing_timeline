@@ -278,4 +278,3 @@ Call `finish_working_on_nodes` for the brand-kit artboard after the final screen
 - [ ] **Step 6: Present the result for user review**
 
 Report that the brand kit is complete, summarize its sections, and ask the user to review it in Paper before any homepage artboard is created.
-

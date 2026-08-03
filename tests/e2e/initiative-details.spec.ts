@@ -22,6 +22,7 @@ test("initiative evidence is deep-linkable and cited", async ({ page }) => {
     dialog.getByRole("heading", { name: "Active initiative" }),
   ).toBeVisible();
   await expect(dialog.getByText("Performance evidence")).toBeVisible();
+  await expect(dialog.getByText("25,000", { exact: true })).toBeVisible();
   await expect(dialog.getByText("Contributions")).toBeVisible();
   await expect(dialog.getByText("Source provenance")).toBeVisible();
   await expect(dialog.getByText("Team interpretation")).toBeVisible();

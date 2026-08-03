@@ -39,6 +39,8 @@ test.describe("historical timeline", () => {
     await expect(page.getByTestId("today-marker")).toBeVisible();
     await expect(page.getByTestId("campaign-band")).toHaveCount(1);
     await expect(page.getByTestId("timeline-marker")).toHaveCount(3);
+    await expect(page.getByTestId("timeline-tick")).toHaveCount(7);
+    await expect(page.getByTestId("timeline-tick").first()).toContainText(/Q[1-4]/);
     await expect(page.getByTestId("campaign-band")).toContainText(
       "Growth campaign",
     );

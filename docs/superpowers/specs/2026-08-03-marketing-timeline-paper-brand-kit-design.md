@@ -1,7 +1,7 @@
 # Marketing Timeline — Paper Brand Kit Design
 
-**Status:** Approved  
-**Date:** 2026-08-03  
+**Status:** Approved
+**Date:** 2026-08-03
 **Scope:** Brand foundations for the desktop Marketing Timeline interface
 
 ## 1. Purpose

@@ -8,7 +8,7 @@ export default defineConfig({
   reporter: "list",
   webServer: {
     command:
-      "APP_ENV=test APP_ORIGIN=http://127.0.0.1:3000 AUTH_SECRET=e2e-only-secret DATABASE_URL=postgresql://marketing_test:marketing_test@127.0.0.1:55432/marketing_test E2E_TEST_MODE=1 E2E_TEST_ADMIN_EMAIL=admin@example.test E2E_TEST_MEMBER_EMAIL=member@example.test NEXTAUTH_URL=http://127.0.0.1:3000 pnpm dev",
+      "APP_ENV=test APP_ORIGIN=http://127.0.0.1:3000 AUTH_SECRET=e2e-only-secret CREDENTIAL_ENCRYPTION_KEY=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE= DATABASE_URL=postgresql://marketing_test:marketing_test@127.0.0.1:55432/marketing_test E2E_TEST_MODE=1 E2E_TEST_ADMIN_EMAIL=admin@example.test E2E_TEST_MEMBER_EMAIL=member@example.test NEXTAUTH_URL=http://127.0.0.1:3000 pnpm dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: false,
   },
