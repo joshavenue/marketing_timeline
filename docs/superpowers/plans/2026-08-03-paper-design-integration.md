@@ -383,7 +383,7 @@ Expected: no whitespace errors, no uncommitted application changes, and no produ
 
 Capture the timeline with and without an open drawer at 1440px. Compare hierarchy, gutters, colors, type scale, timeline axis, growth rail, drawer width, focus states, and empty/error states against `docs/design-handoff/assets/desktop-homepage.png` and `initiative-drawer.png`.
 
-- [ ] **Step 5: Push and open the PR**
+- [x] **Step 5: Push and open the PR**
 
 ```bash
 git push -u origin codex/design-handoff
