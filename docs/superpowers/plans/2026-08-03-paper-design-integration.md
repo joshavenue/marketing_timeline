@@ -390,7 +390,7 @@ git push -u origin codex/design-handoff
 gh pr create --base main --head codex/design-handoff --title "Integrate approved marketing timeline design" --body "Translates the approved Paper homepage and initiative drawer into authenticated, workspace-scoped live components. Adds timeline hierarchy, synchronized growth metrics, cited evidence, configurable freshness, and full browser coverage."
 ```
 
-- [ ] **Step 6: Verify PR state**
+- [x] **Step 6: Verify PR state**
 
 Run: `gh pr view --json url,state,isDraft,mergeable,mergeStateStatus,statusCheckRollup`
 
