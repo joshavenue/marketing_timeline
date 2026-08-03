@@ -11,6 +11,8 @@ export function MetricCard({
     inputs?: Record<string, number>;
     unit: string;
     value: string | null;
+    freshness?: "fresh" | "stale" | "frozen" | null;
+    freezeAgeDays?: number | null;
     observedAt: Date | null;
     frozenAt: Date | null;
     sourceUrl: string | null;
@@ -21,6 +23,10 @@ export function MetricCard({
         observedAt: metric.observedAt,
         frozenAt: metric.frozenAt,
         now: new Date(),
+        ...(metric.freezeAgeDays === null || metric.freezeAgeDays === undefined
+          ? {}
+          : { freezeAgeDays: metric.freezeAgeDays }),
+        ...(metric.freshness ? { reportedFreshness: metric.freshness } : {}),
       })
     : null;
   return (
@@ -28,7 +34,7 @@ export function MetricCard({
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold">{metric.name}</p>
         <span className="rounded-full bg-black/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide">
-          {metric.kind}
+          {metric.kind === "raw" ? "Raw source" : "Calculated"}
         </span>
       </div>
       <p className="mt-4 text-3xl font-semibold">
@@ -49,7 +55,11 @@ export function MetricCard({
         </div>
       ) : null}
       <div className="mt-4 flex items-center justify-between text-xs text-black/45">
-        <span>{freshness ?? "awaiting source"}</span>
+        <span>
+          {freshness === "frozen" && metric.freezeAgeDays
+            ? `Frozen after ${metric.freezeAgeDays} days`
+            : freshness ?? "Awaiting source"}
+        </span>
         {metric.sourceUrl ? (
           <a
             className="font-medium text-blue-700 underline"

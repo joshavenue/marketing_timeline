@@ -158,41 +158,41 @@ git commit -m "feat: add synchronized growth series"
 - Metric presentation consumes `freezeAgeDays` supplied by the read model rather than a constant.
 - Existing `CommentThread` remains the live editable collaboration interface.
 
-- [ ] **Step 1: Write the failing initiative-detail integration test**
+- [x] **Step 1: Write the failing initiative-detail integration test**
 
 Seed multiple contributors on one event, a source snapshot/version, raw metric observations, and a matching connection. Assert one contribution row contains all contributor names, source metadata remains cited, and the metric includes the configured freeze window.
 
-- [ ] **Step 2: Run the integration test and verify RED**
+- [x] **Step 2: Run the integration test and verify RED**
 
 Run: `pnpm vitest run tests/integration/initiative-details.test.ts`
 
 Expected: FAIL because contributions are duplicated per person and connection/source metadata is incomplete.
 
-- [ ] **Step 3: Extend and group the initiative read model**
+- [x] **Step 3: Extend and group the initiative read model**
 
 Keep all workspace predicates. Group contributors by event ID in application code, attach cited URLs and versions, and select the matching connection freeze value for each raw metric.
 
-- [ ] **Step 4: Write the failing freshness presentation test**
+- [x] **Step 4: Write the failing freshness presentation test**
 
 Assert a metric with `freezeAgeDays: 30` is not presented as frozen at day 8, while one with `freezeAgeDays: 7` is frozen at the same timestamp.
 
-- [ ] **Step 5: Run the freshness test and verify RED**
+- [x] **Step 5: Run the freshness test and verify RED**
 
 Run: `pnpm vitest run tests/unit/metric-freshness.test.ts`
 
 Expected: FAIL because `MetricCard` does not consume connection-specific freeze configuration.
 
-- [ ] **Step 6: Implement configurable freshness display**
+- [x] **Step 6: Implement configurable freshness display**
 
 Pass the read-model freeze value into the freshness helper and render explicit `Raw source`, `Calculated`, `Fresh`, and `Frozen after N days` labels with a citation link.
 
-- [ ] **Step 7: Verify Task 3**
+- [x] **Step 7: Verify Task 3**
 
 Run: `pnpm vitest run tests/integration/initiative-details.test.ts tests/unit/metric-freshness.test.ts tests/integration/comments.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/db/queries/initiative-details.ts src/components/metrics/MetricCard.tsx tests/integration/initiative-details.test.ts tests/unit/metric-freshness.test.ts

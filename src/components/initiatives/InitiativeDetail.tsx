@@ -93,8 +93,8 @@ export function InitiativeDetail({
           {detail.contributions.length ? (
             <ol className="mt-4 space-y-3 text-sm">
               {detail.contributions.map((item, index) => (
-                <li key={`${item.title}-${item.contributor}-${index}`}>
-                  {index + 1}) {item.title} | {item.contributor}
+                <li key={item.eventId}>
+                  {index + 1}) {item.title} | {item.contributors.join(", ")}
                 </li>
               ))}
             </ol>
