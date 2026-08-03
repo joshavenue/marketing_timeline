@@ -71,8 +71,8 @@ test("master acceptance criteria 1 through 19", async ({ browser, page }) => {
     activeInitiativeId = new URL(page.url()).pathname.split("/").at(-1)!;
     await expect(page.getByText("Planned budget")).toBeVisible();
     await expect(page.getByText("Token Pre-Sales social posting")).toBeVisible();
-    await expect(page.getByText("raw", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("calculated", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Raw source", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Calculated", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Inputs: actual=820, planned=1000")).toBeVisible();
     await expect(page.getByRole("link", { name: "View citation" }).first()).toBeVisible();
     await expect(page.getByText(/Last read/)).toBeVisible();

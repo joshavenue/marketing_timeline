@@ -261,35 +261,35 @@ git commit -m "feat: apply marketing timeline visual system"
 - `HistoryTimeline` consumes live events, growth options/series, current window, zoom, and canonical timeline URL.
 - `GrowthChart` renders existing observations only; missing periods create visible gaps.
 
-- [ ] **Step 1: Add failing browser assertions for Paper behavior**
+- [x] **Step 1: Add failing browser assertions for Paper behavior**
 
 Assert campaign bands, alternating event cards, status labels, contributor/source metadata, nested-event expansion, the green Today marker, synchronized growth series, raw/calculated legend, missing-value label, configurable frozen label, and causality disclaimer.
 
-- [ ] **Step 2: Run browser tests and verify RED**
+- [x] **Step 2: Run browser tests and verify RED**
 
 Run: `pnpm playwright test tests/e2e/timeline.spec.ts tests/e2e/acceptance.spec.ts --project=chromium`
 
 Expected: FAIL because the current timeline omits hierarchy metadata and the growth rail is a placeholder.
 
-- [ ] **Step 3: Translate the approved timeline structure**
+- [x] **Step 3: Translate the approved timeline structure**
 
 Use the Paper export as a spacing/composition reference while keeping horizontal scroll width date-driven. Render campaign bands, event kinds, lifecycle states, parent expansion, quarter labels, and future targets from live values.
 
-- [ ] **Step 4: Render the live growth chart**
+- [x] **Step 4: Render the live growth chart**
 
 Use an accessible SVG with observation points, explicit breaks between missing periods, target marker, latest value, percent change, source kind, and the same date scale as the selected timeline window.
 
-- [ ] **Step 5: Preserve viewport behavior**
+- [x] **Step 5: Preserve viewport behavior**
 
 Keep local and server preference persistence, retain the selected zoom/date/filter query on zoom links, center Today only when no compatible stored viewport exists, and disable smooth motion for reduced-motion users.
 
-- [ ] **Step 6: Verify Task 5**
+- [x] **Step 6: Verify Task 5**
 
 Run: `pnpm playwright test tests/e2e/timeline.spec.ts tests/e2e/acceptance.spec.ts --project=chromium && pnpm vitest run tests/unit/timeline-layout.test.ts tests/unit/growth-series.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/timeline/HistoryTimeline.tsx src/components/timeline/TimelineEvent.tsx src/components/timeline/GrowthRail.tsx src/components/timeline/GrowthChart.tsx tests/e2e/timeline.spec.ts tests/e2e/acceptance.spec.ts

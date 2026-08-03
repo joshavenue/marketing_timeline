@@ -57,6 +57,10 @@ export default async function TimelinePage({
     typeof params.metric === "string" && params.metric
       ? params.metric
       : undefined;
+  const expandedParentIds =
+    typeof params.expanded === "string" && params.expanded
+      ? [params.expanded]
+      : undefined;
   const model = await getTimelineWindow({
     workspaceId: member.workspaceId,
     start,
@@ -67,6 +71,7 @@ export default async function TimelinePage({
     statuses: status,
     contributors: contributor,
     metricDefinitionId,
+    expandedParentIds,
   });
   const timelineSearch = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -152,6 +157,7 @@ export default async function TimelinePage({
       <HistoryTimeline
         end={model.end}
         events={model.events}
+        growthSeries={model.growthSeries}
         start={model.start}
         timelineHref={timelineHref}
         zoom={model.zoom}

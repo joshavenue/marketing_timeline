@@ -2,6 +2,12 @@ import Link from "next/link";
 
 import type { TimelineLayoutEvent } from "@/lib/timeline/query";
 
+function withExpandedParent(timelineHref: string, parentId: string) {
+  const url = new URL(timelineHref, "http://timeline.local");
+  url.searchParams.set("expanded", parentId);
+  return `${url.pathname}?${url.searchParams.toString()}`;
+}
+
 export function TimelineEvent({
   event,
   left,
@@ -12,6 +18,8 @@ export function TimelineEvent({
   timelineHref: string;
 }) {
   const isTop = event.side === "top";
+  const isInitiative = event.kind === "initiative";
+  const isPlanned = event.status?.toLowerCase() === "planned";
   return (
     <article
       className="absolute w-52 -translate-x-1/2"
@@ -32,19 +40,57 @@ export function TimelineEvent({
           isTop ? "top-[calc(100%+72px)]" : "-top-8"
         }`}
       />
-      <Link
-        className="group block rounded-2xl border border-black/10 bg-white/95 p-4 shadow-[0_12px_35px_rgba(35,35,31,0.08)] transition hover:-translate-y-0.5 hover:border-black/25 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        href={`${timelineHref}${timelineHref.includes("?") ? "&" : "?"}initiative=${event.id}`}
+      <div
+        className={`rounded-[var(--radius-card)] bg-white p-4 shadow-[0_12px_35px_rgba(6,47,51,0.08)] ${
+          isPlanned
+            ? "border border-dashed border-[var(--color-warning)]"
+            : "border border-black/10"
+        }`}
       >
-        <time className="text-xs font-semibold tracking-wide text-blue-700">
-          {event.start}
-          {event.end ? ` — ${event.end}` : ""}
-        </time>
+        <div className="flex items-center justify-between gap-3 text-xs">
+          <span
+            className={`font-semibold ${
+              isPlanned
+                ? "text-[var(--color-warning)]"
+                : "text-[var(--color-success)]"
+            }`}
+          >
+            {event.status ?? event.kind}
+          </span>
+          <time className="text-[var(--color-muted)]">
+            {event.start}
+            {event.end ? ` — ${event.end}` : ""}
+          </time>
+        </div>
         <h3 className="mt-2 text-sm font-semibold leading-5">{event.title}</h3>
-        <span className="mt-3 inline-block text-xs text-black/45 transition group-hover:text-black/70">
-          Open evidence →
-        </span>
-      </Link>
+        <p className="mt-2 text-xs text-[var(--color-evidence)]">
+          {event.kind === "initiative"
+            ? "Initiative · cited evidence"
+            : `${event.kind}${
+                event.contributors.length
+                  ? ` · ${event.contributors.join(", ")}`
+                  : ""
+              }`}
+        </p>
+        {isInitiative ? (
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs font-medium">
+            <Link
+              aria-label={`${event.title} — Open evidence`}
+              className="text-[var(--color-evidence)]"
+              href={`${timelineHref}${timelineHref.includes("?") ? "&" : "?"}initiative=${event.id}`}
+            >
+              Open evidence →
+            </Link>
+            <Link
+              aria-label={`Show related events for ${event.title}`}
+              className="text-[var(--color-ocean)]"
+              href={withExpandedParent(timelineHref, event.id)}
+            >
+              Related events
+            </Link>
+          </div>
+        ) : null}
+      </div>
     </article>
   );
 }

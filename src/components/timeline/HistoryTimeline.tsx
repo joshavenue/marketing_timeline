@@ -9,6 +9,7 @@ import type {
   TimelineLayoutEvent,
   TimelineZoom,
 } from "@/lib/timeline/query";
+import type { GrowthSeriesReadModel } from "@/lib/metrics/growth-series";
 
 const VIEWPORT_KEY = "timeline.viewport";
 const zoomScale: Record<TimelineZoom, number> = {
@@ -34,12 +35,14 @@ export function HistoryTimeline({
   end,
   zoom,
   timelineHref,
+  growthSeries,
 }: {
   events: TimelineLayoutEvent[];
   start: string;
   end: string;
   zoom: TimelineZoom;
   timelineHref: string;
+  growthSeries: GrowthSeriesReadModel | null;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,19 +54,43 @@ export function HistoryTimeline({
     contentWidth,
     Math.max(0, ((dayNumber(today) - startDay) / totalDays) * contentWidth),
   );
+  const campaignBands = useMemo(
+    () =>
+      events
+        .filter((event) => event.kind === "campaign")
+        .map((event) => {
+          const left = Math.max(
+            80,
+            ((dayNumber(event.start) - startDay) / totalDays) * contentWidth,
+          );
+          const endLeft = Math.min(
+            contentWidth - 80,
+            ((dayNumber(event.end ?? event.start) - startDay) / totalDays) *
+              contentWidth,
+          );
+          return {
+            event,
+            left,
+            width: Math.max(220, endLeft - left),
+          };
+        }),
+    [contentWidth, events, startDay, totalDays],
+  );
   const positioned = useMemo(
     () =>
-      events.map((event) => ({
-        event,
-        left: Math.min(
-          contentWidth - 104,
-          Math.max(
-            104,
-            ((dayNumber(event.markerDate) - startDay) / totalDays) *
-              contentWidth,
+      events
+        .filter((event) => event.kind !== "campaign")
+        .map((event) => ({
+          event,
+          left: Math.min(
+            contentWidth - 104,
+            Math.max(
+              104,
+              ((dayNumber(event.markerDate) - startDay) / totalDays) *
+                contentWidth,
+            ),
           ),
-        ),
-      })),
+        })),
     [contentWidth, events, startDay, totalDays],
   );
 
@@ -128,6 +155,9 @@ export function HistoryTimeline({
   return (
     <section className="overflow-hidden rounded-[var(--radius-panel)] border border-black/10 bg-[var(--color-fog)]/40">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white px-5 py-3">
+        <p className="text-sm font-semibold text-[var(--color-ink)]">
+          {start.slice(0, 4)} — {end.slice(0, 4)}
+        </p>
         <div className="flex items-center gap-1 rounded-full bg-black/[0.045] p-1">
           {(["year", "quarter", "month", "week"] as const).map((value) => (
             <Link
@@ -162,6 +192,19 @@ export function HistoryTimeline({
         tabIndex={0}
       >
         <div className="relative h-full" style={{ width: contentWidth }}>
+          {campaignBands.map(({ event, left, width }) => (
+            <div
+              className="absolute top-6 flex h-9 items-center justify-between rounded-full bg-[#dce9eb] px-4 text-xs font-semibold text-[var(--color-ocean)]"
+              data-testid="campaign-band"
+              key={event.id}
+              style={{ left, width }}
+            >
+              <span>● Campaign · {event.title}</span>
+              <span className="font-normal">
+                {event.start} — {event.end ?? event.start}
+              </span>
+            </div>
+          ))}
           <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-black/70" />
           <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[7px] border-l-[12px] border-y-transparent border-l-black/70" />
           <div
@@ -181,14 +224,14 @@ export function HistoryTimeline({
               timelineHref={timelineHref}
             />
           ))}
-          {events.length === 0 ? (
+          {positioned.length === 0 ? (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-10 rounded-2xl border border-dashed border-black/15 bg-white/80 px-6 py-4 text-sm text-black/45">
               No published events match this window.
             </div>
           ) : null}
         </div>
       </div>
-      <GrowthRail />
+      <GrowthRail end={end} series={growthSeries} start={start} />
     </section>
   );
 }
