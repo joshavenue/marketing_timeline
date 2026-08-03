@@ -1,0 +1,14 @@
+{
+  "data": [{
+    "id": "campaign-1",
+    "id_data": [{
+      "segment": null,
+      "metrics": {
+        "impressions": [12000],
+        "engagements": [420],
+        "billed_charge_local_micro": [12345678]
+      }
+    }]
+  }],
+  "request": {"params": {"start_time": "2026-07-20T00:00:00Z", "end_time": "2026-07-21T00:00:00Z"}}
+}

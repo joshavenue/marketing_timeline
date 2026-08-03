@@ -1,0 +1,18 @@
+{
+  "recordType": "initiative",
+  "sourceId": "init001",
+  "sourceUrl": "https://www.notion.so/init001",
+  "name": "Token pre-sales campaign",
+  "campaignExternalId": "campaign001",
+  "lifecycleStatus": "Complete",
+  "publicationStatus": "Published",
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-16",
+  "ownerName": "Person A",
+  "plannedBudget": 10000,
+  "actualSpend": 9200,
+  "overview": "Prepared and launched the completed token pre-sales marketing effort.",
+  "attributionTemplate": "seven_day_comparison",
+  "displayLevel": "Primary marker",
+  "sourceRecordUrls": ["https://www.notion.so/original001"]
+}

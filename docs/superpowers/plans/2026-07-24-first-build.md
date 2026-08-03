@@ -219,7 +219,7 @@ Caddyfile
 **Interfaces:**
 - Produces: PostgreSQL 18 test database at `postgresql://marketing_test:marketing_test@127.0.0.1:55432/marketing_test`.
 
-- [ ] **Step 1: Install Docker Engine and Compose from the official Ubuntu repository**
+- [x] **Step 1: Install Docker Engine and Compose from the official Ubuntu repository**
 
 Run:
 
@@ -247,7 +247,7 @@ docker run --rm hello-world
 
 Expected: Docker, Compose, and `hello-world` succeed.
 
-- [ ] **Step 2: Create the isolated test database**
+- [x] **Step 2: Create the isolated test database**
 
 `docker-compose.test.yml`:
 
@@ -272,7 +272,7 @@ services:
 
 Document start, stop, and connection commands in `docs/runbooks/developer-setup.md`.
 
-- [ ] **Step 3: Verify and commit**
+- [x] **Step 3: Verify and commit**
 
 ```bash
 docker compose -f docker-compose.test.yml up -d
@@ -310,7 +310,7 @@ Expected: `pg_isready` reports “accepting connections”.
 - Produces: `readServerEnv(input?: NodeJS.ProcessEnv): ServerEnv`.
 - Produces: `GET /api/health` returning `{ status: "ok" }`.
 
-- [ ] **Step 1: Add package metadata and dependencies**
+- [x] **Step 1: Add package metadata and dependencies**
 
 Create scripts with these exact names:
 
@@ -339,7 +339,7 @@ pnpm add next@latest react@latest react-dom@latest next-auth zod drizzle-orm@rc 
 pnpm add -D typescript @types/node @types/react @types/react-dom @types/pg @types/nodemailer drizzle-kit@rc tsx vitest @vitest/coverage-v8 @testing-library/react @testing-library/jest-dom jsdom @playwright/test eslint eslint-config-next tailwindcss @tailwindcss/postcss
 ```
 
-- [ ] **Step 2: Write the failing environment test**
+- [x] **Step 2: Write the failing environment test**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -364,13 +364,13 @@ describe("readServerEnv", () => {
 });
 ```
 
-- [ ] **Step 3: Verify the test fails**
+- [x] **Step 3: Verify the test fails**
 
 Run: `pnpm test tests/unit/env.test.ts`
 
 Expected: FAIL because `@/lib/env` does not exist.
 
-- [ ] **Step 4: Implement the environment parser, contracts, root page, and health route**
+- [x] **Step 4: Implement the environment parser, contracts, root page, and health route**
 
 `ServerEnv` must require `DATABASE_URL`, a 32-character-or-longer `AUTH_SECRET`, an absolute `APP_ORIGIN`, and a base64-encoded 32-byte `CREDENTIAL_ENCRYPTION_KEY`. OAuth, SMTP, Notion, X, backup, and production-domain variables remain optional at parse time and are validated when their corresponding feature is enabled. `APP_ENV` is exactly `development`, `test`, or `production`. `E2E_TEST_MODE=1` is accepted only when `APP_ENV=test` and `APP_ORIGIN` uses `localhost`; reject every other combination.
 
@@ -413,7 +413,7 @@ CREDENTIAL_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
 Use the exact locked domain contracts above. The root page redirects authenticated users later; for this task it renders “Marketing Timeline Dashboard”. The health route returns status 200 and `{ "status": "ok" }`.
 
-- [ ] **Step 5: Run the foundation checks**
+- [x] **Step 5: Run the foundation checks**
 
 Run:
 
@@ -426,7 +426,7 @@ pnpm build
 
 Expected: all commands exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json pnpm-lock.yaml tsconfig.json next.config.ts postcss.config.mjs eslint.config.mjs vitest.config.ts playwright.config.ts .gitignore .env.example src tests/unit/env.test.ts
@@ -540,23 +540,23 @@ refresh_job_items(workspace_id, idempotency_key)
 metric_observations(workspace_id, metric_definition_id, period_start, period_end, source_snapshot_id)
 ```
 
-- [ ] **Step 1: Write the failing workspace-isolation test**
+- [x] **Step 1: Write the failing workspace-isolation test**
 
 Create two workspaces, one initiative in each, and assert `listTimelineRows(workspaceA.id, ...)` returns only workspace A. Also assert insertion of a duplicate `(workspace_id, external_id)` fails.
 
-- [ ] **Step 2: Verify the test fails**
+- [x] **Step 2: Verify the test fails**
 
 Run: `pnpm test tests/integration/db-schema.test.ts`
 
 Expected: FAIL because the schema and database helper do not exist.
 
-- [ ] **Step 3: Implement the schema and queries**
+- [x] **Step 3: Implement the schema and queries**
 
 Use PostgreSQL enums matching the locked string unions. Monetary columns use `numeric(20, 6)`. Metric values use `numeric(30, 10)`. Raw JSON responses use `jsonb`. Store credential ciphertext as text and never return it from general connection queries.
 
 Every query function accepts `workspaceId` as its first argument. Do not create a query that infers workspace from a record ID alone.
 
-- [ ] **Step 4: Generate and apply migrations**
+- [x] **Step 4: Generate and apply migrations**
 
 Run:
 
@@ -568,7 +568,7 @@ pnpm test tests/integration/db-schema.test.ts
 
 Expected: migration succeeds; integration test passes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add drizzle.config.ts drizzle src/db tests/helpers tests/integration/db-schema.test.ts
@@ -598,7 +598,7 @@ git commit -m "feat: add workspace-scoped data model"
 - Produces: `createInvitation(input: { workspaceId: string; email: string; role: WorkspaceRole; invitedBy: string }): Promise<{ token: string }>`
 - Produces: `acceptInvitation(token: string, googleEmail: string): Promise<void>`
 
-- [ ] **Step 1: Write failing authorization tests**
+- [x] **Step 1: Write failing authorization tests**
 
 Cover:
 
@@ -610,13 +610,13 @@ await expect(acceptInvitation(validToken, "other@example.com")).rejects.toThrow(
 );
 ```
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/access.test.ts tests/integration/invitations.test.ts`
 
 Expected: FAIL because the access and invitation services do not exist.
 
-- [ ] **Step 3: Implement Auth.js and invitation flow**
+- [x] **Step 3: Implement Auth.js and invitation flow**
 
 Configure the Google provider from `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`. In the Auth.js `signIn` callback:
 
@@ -630,7 +630,7 @@ Invitation tokens are random 32-byte values; store only a SHA-256 token hash. Ex
 
 For Playwright only, conditionally register an Auth.js Credentials provider when `APP_ENV=test` and `E2E_TEST_MODE=1`. It may sign in only pre-seeded `E2E_TEST_ADMIN_EMAIL` and `E2E_TEST_MEMBER_EMAIL`. `global.setup.ts` seeds those users and memberships and stores browser authentication states. Production startup must fail if `E2E_TEST_MODE=1`.
 
-- [ ] **Step 4: Run auth checks**
+- [x] **Step 4: Run auth checks**
 
 Run:
 
@@ -641,7 +641,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/auth.ts src/proxy.ts src/lib/auth src/lib/mail src/app/api/auth src/app/login src/app/invite tests/unit/access.test.ts tests/integration/invitations.test.ts tests/e2e/global.setup.ts
@@ -683,17 +683,17 @@ export interface ConnectorManifest {
 }
 ```
 
-- [ ] **Step 1: Write failing encryption and skill-version tests**
+- [x] **Step 1: Write failing encryption and skill-version tests**
 
 Assert encryption is nondeterministic, round-trips correctly, rejects tampering, and never includes plaintext. Assert activating skill version 2 deactivates version 1 but retains its row and emits one audit event. Assert a skill with zero or two `connector-manifest` blocks is rejected.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts`
 
 Expected: FAIL because the services do not exist.
 
-- [ ] **Step 3: Implement AES-256-GCM and append-only audit**
+- [x] **Step 3: Implement AES-256-GCM and append-only audit**
 
 Decode `CREDENTIAL_ENCRYPTION_KEY` as exactly 32 bytes. Use a fresh 12-byte IV per encryption. `audit_events` has no update/delete service. Skill Markdown is stored as text, limited to 256 KiB, and is never executed.
 
@@ -726,13 +726,13 @@ Require exactly one fenced machine-readable block:
 
 Parse only this JSON block with Zod. Preserve the remaining Markdown as LLM instruction text for the later OpenRouter phase. Save the complete example above in `docs/examples/X_API.example.md` with a short explanatory Markdown section after the manifest.
 
-- [ ] **Step 4: Run checks**
+- [x] **Step 4: Run checks**
 
 Run: `pnpm test tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/crypto src/lib/audit src/lib/connectors/skills.ts docs/examples/X_API.example.md tests/unit/secrets.test.ts tests/integration/audit-skills.test.ts
@@ -761,7 +761,7 @@ git commit -m "feat: secure connector credentials and skill versions"
 - Produces: `syncNotionWorkspace(input: { workspaceId: string; connectionId: string; actorUserId: string }): Promise<NotionSyncReport>`
 - `NotionSyncReport` contains exact arrays: `created`, `updated`, `unchanged`, `archived`, `invalid`.
 
-- [ ] **Step 1: Write failing validation tests**
+- [x] **Step 1: Write failing validation tests**
 
 Fixtures must prove:
 
@@ -770,19 +770,19 @@ Fixtures must prove:
 - Missing parent campaign, invalid date range, or missing display level is invalid.
 - Lifecycle status remains an arbitrary non-empty Notion string.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/notion-validation.test.ts`
 
 Expected: FAIL because validation does not exist.
 
-- [ ] **Step 3: Implement read-only Notion canonical DTOs and validation**
+- [x] **Step 3: Implement read-only Notion canonical DTOs and validation**
 
 Require configured database IDs for Campaigns, Initiatives, Timeline Events, Metric Definitions, and Manual Metric Observations. Query only; do not call Notion create/update/archive endpoints. Normalize Notion IDs without hyphens only for comparisons, but preserve canonical source URLs for citations.
 
 Write `docs/runbooks/notion-canonical-setup.md` with the five database names, exact property names/types from the master design, relation directions, `Publication Status` values, `Display Level` values, and one complete example of Campaign → Initiative → Event → Metric → Observation. This runbook is the curator's setup and cleanup contract.
 
-- [ ] **Step 4: Write and run failing sync-version tests**
+- [x] **Step 4: Write and run failing sync-version tests**
 
 Test initial import, identical second sync, changed checksum creating a version, and missing source ID setting `sourceState = "deleted"` without deleting prior data.
 
@@ -790,7 +790,7 @@ Run: `pnpm test tests/integration/notion-sync.test.ts`
 
 Expected: FAIL until `syncNotionWorkspace` is implemented.
 
-- [ ] **Step 5: Implement snapshot-first synchronization**
+- [x] **Step 5: Implement snapshot-first synchronization**
 
 For each source page:
 
@@ -804,7 +804,7 @@ For each source page:
 
 Do not infer campaign/initiative relationships from text. Only import explicit Notion relations.
 
-- [ ] **Step 6: Run checks and commit**
+- [x] **Step 6: Run checks and commit**
 
 ```bash
 pnpm test tests/unit/notion-validation.test.ts tests/integration/notion-sync.test.ts
@@ -833,7 +833,7 @@ git commit -m "feat: import curated Notion history"
 - Zoom is exactly `"year" | "quarter" | "month" | "week"`.
 - User preference key is `timeline.viewport`.
 
-- [ ] **Step 1: Write failing timeline-layout tests**
+- [x] **Step 1: Write failing timeline-layout tests**
 
 Test that:
 
@@ -843,23 +843,23 @@ Test that:
 - Alternating marker sides are stable by `(date, id)` ordering.
 - A date range uses its start for the marker and retains its end in details.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/timeline-layout.test.ts`
 
 Expected: FAIL because the layout functions do not exist.
 
-- [ ] **Step 3: Implement the server query and horizontal timeline**
+- [x] **Step 3: Implement the server query and horizontal timeline**
 
 The main DOM contains one scroll container with a central horizontal axis, alternating event callouts, a visible today marker, and left/right continuation affordances. Use semantic buttons for markers and preserve focus. Use URL search parameters for filters and zoom. Save scroll position and zoom after 500 ms of inactivity; restore them unless the URL supplies an explicit date.
 
 The growth rail is collapsible and renders cached observations only. Empty periods render gaps.
 
-- [ ] **Step 4: Add Playwright history behavior**
+- [x] **Step 4: Add Playwright history behavior**
 
 Seed past, active, and future records. Assert first load centers today, horizontal scrolling works, zoom changes, filter selection reduces markers, and reload restores the viewport.
 
-- [ ] **Step 5: Run checks and commit**
+- [x] **Step 5: Run checks and commit**
 
 ```bash
 pnpm test tests/unit/timeline-layout.test.ts
@@ -888,7 +888,7 @@ git commit -m "feat: add historical marketing timeline"
 - Supported formula keys in V1: `budget_variance`, `engagement_rate`, `cost_per_result`.
 - Produces: `deriveFreshness(input: { observedAt: Date; frozenAt: Date | null; now: Date }): Freshness`
 
-- [ ] **Step 1: Write failing metric tests**
+- [x] **Step 1: Write failing metric tests**
 
 Test exact formulas:
 
@@ -902,23 +902,23 @@ expect(() => calculateMetric("cost_per_result", { cost: 20, results: 0 })).toThr
 
 Also test frozen status wins over stale/fresh.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/metrics.test.ts`
 
 Expected: FAIL because metric functions do not exist.
 
-- [ ] **Step 3: Implement details**
+- [x] **Step 3: Implement details**
 
 The drawer opens through an intercepted route or URL-controlled overlay so deep links work. Closing it returns to the exact timeline URL and scroll position. The full page includes hierarchy, lifecycle status, dates, planned budget, actual spend, contributions, raw metrics, calculated formulas and inputs, citations, last-read status, source version history, and source-deleted flag.
 
 Never render raw credential-bearing request headers or unredacted raw API payloads.
 
-- [ ] **Step 4: Add and run E2E tests**
+- [x] **Step 4: Add and run E2E tests**
 
 Assert marker → drawer → full page → back preserves the timeline. Assert raw/calculated labels and citation links.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 pnpm test tests/unit/metrics.test.ts
@@ -944,21 +944,21 @@ git commit -m "feat: show initiative evidence and metrics"
 - Produces: `listComments(workspaceId: string, entityType: "initiative" | "event", entityId: string): Promise<CommentView[]>`
 - Mention syntax: `@[Display Name](user:<uuid>)`.
 
-- [ ] **Step 1: Write failing service tests**
+- [x] **Step 1: Write failing service tests**
 
 Cover top-level comment, one reply, mention notification creation, no notification for self-mention, and rejection when a mentioned user is not a member of the same workspace.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/integration/comments.test.ts`
 
 Expected: FAIL because services do not exist.
 
-- [ ] **Step 3: Implement services and UI**
+- [x] **Step 3: Implement services and UI**
 
 Sanitize comment text as plain text plus parsed mention tokens; do not render arbitrary HTML. Limit comment length to 10,000 characters. Replies have one parent level in V1. A notification links to the entity and comment ID.
 
-- [ ] **Step 4: Run service and E2E checks**
+- [x] **Step 4: Run service and E2E checks**
 
 ```bash
 pnpm test tests/integration/comments.test.ts
@@ -967,7 +967,7 @@ pnpm exec playwright test tests/e2e/comments.spec.ts --project=chromium
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/comments src/lib/notifications src/components/comments src/app/'(dashboard)'/notifications tests/integration/comments.test.ts tests/e2e/comments.spec.ts
@@ -1014,7 +1014,7 @@ export interface RefreshPreflight {
 }
 ```
 
-- [ ] **Step 1: Write failing policy tests**
+- [x] **Step 1: Write failing policy tests**
 
 Test:
 
@@ -1025,19 +1025,19 @@ Test:
 - A member cannot create or approve a refresh.
 - A frozen object never appears in the queued job items.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/unit/refresh-policy.test.ts`
 
 Expected: FAIL because policy functions do not exist.
 
-- [ ] **Step 3: Implement preflight and PostgreSQL job claiming**
+- [x] **Step 3: Implement preflight and PostgreSQL job claiming**
 
 Use a transaction and `SELECT ... FOR UPDATE SKIP LOCKED` to claim one queued job. Store an idempotency key derived from workspace, connection, operation, object, and observation window. The worker writes a raw snapshot before normalization. Do not auto-retry 429/503; store `retryAt` from upstream headers and require admin confirmation for a retry.
 
 Register Notion as a zero-estimated-cost connector that bypasses metric freeze but still requires an admin-confirmed manual job. Wrap `syncNotionWorkspace` rather than duplicating its import logic. Reset usage counters at the start of each UTC calendar month.
 
-- [ ] **Step 4: Run integration checks**
+- [x] **Step 4: Run integration checks**
 
 Run:
 
@@ -1048,7 +1048,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/connectors src/lib/refresh scripts/worker.ts src/app/api/jobs src/app/'(dashboard)'/settings/notion/page.tsx src/components/settings/RefreshPreflight.tsx tests/unit/refresh-policy.test.ts tests/integration/refresh-jobs.test.ts
@@ -1078,7 +1078,7 @@ git commit -m "feat: add guarded manual refresh jobs"
 - Allowlisted HTTP method: `GET` only for the first build.
 - Every operation must exist in the active skill's validated `connector-manifest`.
 
-- [ ] **Step 1: Write failing contract tests from sanitized real-shaped fixtures**
+- [x] **Step 1: Write failing contract tests from sanitized real-shaped fixtures**
 
 Post test expects public, non-public, organic, and promoted fields only when present. Account test expects supported `public_metrics` such as followers and post count. Ads test expects requested entity metrics and converts `billed_charge_local_micro` to workspace currency units without losing the raw micro value.
 
@@ -1092,13 +1092,13 @@ Add one explicit test proving a requested account metric absent from the respons
 }
 ```
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm test tests/contract/x-post.test.ts tests/contract/x-account.test.ts tests/contract/x-ads.test.ts`
 
 Expected: FAIL because X adapters do not exist.
 
-- [ ] **Step 3: Implement the allowlisted X client**
+- [x] **Step 3: Implement the allowlisted X client**
 
 Rules:
 
@@ -1148,21 +1148,21 @@ git commit -m "feat: import separate X analytics contexts"
 - Connection list responses exclude ciphertext.
 - Skill activation displays version and checksum.
 
-- [ ] **Step 1: Write failing admin E2E tests**
+- [x] **Step 1: Write failing admin E2E tests**
 
 Assert a member receives 403/redirect for settings mutations. Assert an admin can create named Notion and X connections, upload an `X_API.md` under 256 KiB, activate a version, set a hard cap, and view matching audit events. Assert credential values never reappear after submission.
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm exec playwright test tests/e2e/admin-settings.spec.ts --project=chromium`
 
 Expected: FAIL because settings pages do not exist.
 
-- [ ] **Step 3: Implement admin pages**
+- [x] **Step 3: Implement admin pages**
 
 Use server actions or route handlers with server-side authorization. Show connection health, last successful read, last error, active skill version, current-period usage, hard cap, and freeze policy. Every credential rotation and cap change requires an explicit confirmation form submission and audit event.
 
-- [ ] **Step 4: Run checks**
+- [x] **Step 4: Run checks**
 
 ```bash
 pnpm exec playwright test tests/e2e/admin-settings.spec.ts --project=chromium
@@ -1172,7 +1172,7 @@ pnpm typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/'(dashboard)'/settings src/components/settings tests/e2e/admin-settings.spec.ts
@@ -1199,7 +1199,7 @@ git commit -m "feat: add workspace administration"
 - PostgreSQL is internal-only.
 - Backup output: encrypted PostgreSQL custom dump named `*.dump.age`.
 
-- [ ] **Step 1: Verify the Docker prerequisite**
+- [x] **Step 1: Verify the Docker prerequisite**
 
 Run:
 
@@ -1211,11 +1211,11 @@ docker compose -f docker-compose.test.yml ps
 
 Expected: Docker and Compose succeed; `postgres-test` is healthy.
 
-- [ ] **Step 2: Write the failing backup/restore test**
+- [x] **Step 2: Write the failing backup/restore test**
 
 The script creates a disposable database, inserts a workspace plus one campaign, runs backup, restores to a second disposable database, and asserts the restored campaign exists. It must fail if the backup key is absent or wrong.
 
-- [ ] **Step 3: Implement deployment files and scripts**
+- [x] **Step 3: Implement deployment files and scripts**
 
 Requirements:
 
@@ -1231,7 +1231,7 @@ Requirements:
 - The age identity file is supplied separately, must be mode `0600`, and is never stored in the backup archive.
 - Restore refuses to target the configured production database name.
 
-- [ ] **Step 4: Run operational verification**
+- [x] **Step 4: Run operational verification**
 
 ```bash
 docker compose config
@@ -1244,7 +1244,7 @@ docker compose down
 
 Expected: config/build/migration/restore pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Dockerfile docker-compose.yml Caddyfile scripts/backup.sh scripts/restore.sh docs/runbooks tests/ops
@@ -1266,7 +1266,7 @@ git commit -m "ops: add VPS deployment and recovery"
 - Produces: one repeatable acceptance command: `pnpm test:acceptance`.
 - Production seed creates the first admin only when `BOOTSTRAP_ADMIN_EMAIL` exactly matches the Google account.
 
-- [ ] **Step 1: Add the acceptance script and failing E2E suite**
+- [x] **Step 1: Add the acceptance script and failing E2E suite**
 
 Add:
 
@@ -1280,13 +1280,13 @@ Add:
 
 The browser/API suite covers master acceptance criteria 1–19. `tests/ops/backup-restore.sh` covers criterion 20. OpenRouter, xAI, and later connectors must not be marked as implemented.
 
-- [ ] **Step 2: Run the complete acceptance suite**
+- [x] **Step 2: Run the complete acceptance suite**
 
 Run: `pnpm test:acceptance`
 
 Expected: PASS. If it fails, do not patch broadly in this task. Return to the task that owns the failed behavior, add the missing focused test there, make it pass, and then rerun this step.
 
-- [ ] **Step 3: Run the complete verification matrix**
+- [x] **Step 3: Run the complete verification matrix**
 
 ```bash
 pnpm lint
