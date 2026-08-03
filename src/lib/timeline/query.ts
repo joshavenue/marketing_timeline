@@ -1,4 +1,4 @@
-import type { DisplayLevel } from "@/domain/contracts";
+import type { DisplayLevel, TimelineKind } from "@/domain/contracts";
 import { listTimelineRows } from "@/db/queries/timeline";
 
 export type TimelineZoom = "year" | "quarter" | "month" | "week";
@@ -7,6 +7,9 @@ export type TimelineSide = "top" | "bottom";
 export interface TimelineLayoutInput {
   id: string;
   parentId: string | null;
+  kind: TimelineKind;
+  status: string | null;
+  contributors: string[];
   title: string;
   start: string;
   end: string | null;
@@ -104,7 +107,10 @@ export async function getTimelineWindow(
     events: layoutTimelineEvents(
       filtered.map((row) => ({
         id: row.id,
-        parentId: null,
+        parentId: row.parentId,
+        kind: row.kind,
+        status: row.status,
+        contributors: row.contributors,
         title: row.title,
         start: row.start,
         end: row.end,

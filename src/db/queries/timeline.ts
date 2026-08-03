@@ -16,6 +16,7 @@ import type {
 
 export interface TimelineRow {
   id: string;
+  parentId: string | null;
   externalId: string;
   title: string;
   kind: TimelineKind;
@@ -91,6 +92,7 @@ export async function listTimelineRows(
         start: timelineEvents.startDate,
         end: timelineEvents.endDate,
         displayLevel: timelineEvents.displayLevel,
+        initiativeId: timelineEvents.initiativeId,
         campaignId: initiatives.campaignId,
         status: initiatives.lifecycleStatus,
       })
@@ -137,16 +139,19 @@ export async function listTimelineRows(
   return [
     ...campaignRows.map((row) => ({
       ...row,
+      parentId: null,
       kind: "campaign" as const,
       contributors: [],
     })),
     ...initiativeRows.map((row) => ({
       ...row,
+      parentId: row.campaignId,
       kind: "initiative" as const,
       contributors: [],
     })),
     ...eventRows.map((row) => ({
       ...row,
+      parentId: row.initiativeId,
       contributors: contributorsByEvent.get(row.id) ?? [],
     })),
   ].sort(

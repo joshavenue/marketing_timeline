@@ -9,6 +9,9 @@ const rows: TimelineLayoutInput[] = [
   {
     id: "primary",
     parentId: null,
+    kind: "campaign",
+    status: "Active",
+    contributors: [],
     title: "Primary",
     start: "2026-07-10",
     end: null,
@@ -17,6 +20,9 @@ const rows: TimelineLayoutInput[] = [
   {
     id: "nested",
     parentId: "primary",
+    kind: "activity",
+    status: "Completed",
+    contributors: ["Person A"],
     title: "Nested",
     start: "2026-07-11",
     end: null,
@@ -25,6 +31,9 @@ const rows: TimelineLayoutInput[] = [
   {
     id: "detail",
     parentId: "primary",
+    kind: "other",
+    status: "Completed",
+    contributors: ["Person B"],
     title: "Detail",
     start: "2026-07-12",
     end: null,
@@ -89,6 +98,17 @@ describe("historical timeline layout", () => {
     expect(range).toMatchObject({
       markerDate: "2026-03-01",
       end: "2026-03-14",
+    });
+  });
+
+  it("preserves event kind, status, contributors, and parent identity", () => {
+    const [event] = layoutTimelineEvents([rows[1]!], { zoom: "month" });
+
+    expect(event).toMatchObject({
+      parentId: "primary",
+      kind: "activity",
+      status: "Completed",
+      contributors: ["Person A"],
     });
   });
 });

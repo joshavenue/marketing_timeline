@@ -36,7 +36,7 @@
 - Produces: `TimelineLayoutEvent.kind`, `status`, `contributors`, and `parentId` for the visual timeline.
 - Parent mapping: campaign → `null`; initiative → `campaignId`; event → `initiativeId`.
 
-- [ ] **Step 1: Write the failing integration test**
+- [x] **Step 1: Write the failing integration test**
 
 Extend the existing workspace-scoping test with a published campaign, initiative, and event, then assert:
 
@@ -48,37 +48,37 @@ expect(rows.map(({ kind, parentId }) => ({ kind, parentId }))).toEqual([
 ]);
 ```
 
-- [ ] **Step 2: Run the integration test and verify RED**
+- [x] **Step 2: Run the integration test and verify RED**
 
 Run: `pnpm vitest run tests/integration/db-schema.test.ts`
 
 Expected: FAIL because `TimelineRow` does not expose `parentId` and the event row loses its initiative identity.
 
-- [ ] **Step 3: Add hierarchy fields to the database query**
+- [x] **Step 3: Add hierarchy fields to the database query**
 
 Return `parentId` directly from each query branch and keep the existing workspace, publication, window, and contributor filters intact.
 
-- [ ] **Step 4: Write the failing layout metadata test**
+- [x] **Step 4: Write the failing layout metadata test**
 
 Add a unit assertion that `layoutTimelineEvents` preserves `kind`, `status`, and `contributors` while applying expansion and zoom rules.
 
-- [ ] **Step 5: Run the layout test and verify RED**
+- [x] **Step 5: Run the layout test and verify RED**
 
 Run: `pnpm vitest run tests/unit/timeline-layout.test.ts`
 
 Expected: FAIL because `getTimelineWindow` currently maps every `parentId` to `null` and drops visual metadata.
 
-- [ ] **Step 6: Pass the complete row through the timeline read model**
+- [x] **Step 6: Pass the complete row through the timeline read model**
 
 Extend `TimelineLayoutInput` and map database rows without replacing `parentId`. Keep marker-date and alternating-side calculation inside `layoutTimelineEvents`.
 
-- [ ] **Step 7: Verify Task 1**
+- [x] **Step 7: Verify Task 1**
 
 Run: `pnpm vitest run tests/integration/db-schema.test.ts tests/unit/timeline-layout.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/db/queries/timeline.ts src/lib/timeline/query.ts tests/integration/db-schema.test.ts tests/unit/timeline-layout.test.ts
