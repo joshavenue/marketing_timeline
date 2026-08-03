@@ -1,13 +1,15 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
 import {
   campaigns,
+  connections,
   initiativeMetrics,
   initiatives,
   initiativeVersions,
   metricDefinitions,
   metricObservations,
+  sourceSnapshots,
   timelineEventContributors,
   timelineEvents,
 } from "@/db/schema";
@@ -31,6 +33,7 @@ export async function getInitiativeDetail(
       overview: initiatives.overview,
       sourceUrls: initiatives.sourceUrlsJson,
       sourceState: initiatives.sourceState,
+      currentSnapshotId: initiatives.currentSnapshotId,
       updatedAt: initiatives.updatedAt,
     })
     .from(initiatives)
@@ -44,11 +47,34 @@ export async function getInitiativeDetail(
     .limit(1);
   if (!initiative) return null;
 
-  const [contributions, metrics, versions] = await Promise.all([
+  const sourceSnapshotPromise = initiative.currentSnapshotId
+    ? db
+        .select({
+          id: sourceSnapshots.id,
+          externalObjectId: sourceSnapshots.externalObjectId,
+          observedAt: sourceSnapshots.observedAt,
+          checksum: sourceSnapshots.checksum,
+          connectionName: connections.name,
+        })
+        .from(sourceSnapshots)
+        .innerJoin(connections, eq(connections.id, sourceSnapshots.connectionId))
+        .where(
+          and(
+            eq(sourceSnapshots.workspaceId, workspaceId),
+            eq(sourceSnapshots.id, initiative.currentSnapshotId),
+          ),
+        )
+        .limit(1)
+        .then((rows) => rows[0] ?? null)
+    : Promise.resolve(null);
+
+  const [contributionRows, metrics, versions, sourceSnapshot] = await Promise.all([
     db
       .select({
+        eventId: timelineEvents.id,
         title: timelineEvents.title,
         contributor: timelineEventContributors.contributorName,
+        sourceUrls: timelineEvents.sourceUrlsJson,
       })
       .from(timelineEvents)
       .innerJoin(
@@ -60,6 +86,11 @@ export async function getInitiativeDetail(
           eq(timelineEvents.workspaceId, workspaceId),
           eq(timelineEvents.initiativeId, initiativeId),
         ),
+      )
+      .orderBy(
+        asc(timelineEvents.startDate),
+        asc(timelineEvents.id),
+        asc(timelineEventContributors.contributorName),
       ),
     db
       .select({
@@ -70,9 +101,11 @@ export async function getInitiativeDetail(
         externalMetricKey: metricDefinitions.externalMetricKey,
         unit: metricDefinitions.unit,
         value: metricObservations.value,
+        freshness: metricObservations.freshness,
         observedAt: metricObservations.observedAt,
         frozenAt: metricObservations.frozenAt,
         sourceUrl: metricObservations.sourceUrl,
+        freezeAgeDays: sql<number | null>`coalesce(${metricDefinitions.overrideWindowDays}, ${connections.freezeAgeDays})`,
       })
       .from(initiativeMetrics)
       .innerJoin(
@@ -86,6 +119,14 @@ export async function getInitiativeDetail(
           eq(metricObservations.initiativeId, initiativeId),
         ),
       )
+      .leftJoin(
+        connections,
+        and(
+          eq(connections.workspaceId, metricDefinitions.workspaceId),
+          eq(connections.connectorKey, metricDefinitions.connectorKey),
+          eq(connections.name, metricDefinitions.connectionName),
+        ),
+      )
       .where(
         and(
           eq(initiativeMetrics.workspaceId, workspaceId),
@@ -96,6 +137,7 @@ export async function getInitiativeDetail(
     db
       .select({
         version: initiativeVersions.version,
+        sourceSnapshotId: initiativeVersions.sourceSnapshotId,
         createdAt: initiativeVersions.createdAt,
       })
       .from(initiativeVersions)
@@ -106,7 +148,33 @@ export async function getInitiativeDetail(
         ),
       )
       .orderBy(desc(initiativeVersions.version)),
+    sourceSnapshotPromise,
   ]);
 
-  return { ...initiative, contributions, metrics, versions };
+  const contributionsByEvent = new Map<
+    string,
+    { eventId: string; title: string; contributors: string[]; sourceUrls: string[] }
+  >();
+  for (const row of contributionRows) {
+    const current = contributionsByEvent.get(row.eventId) ?? {
+      eventId: row.eventId,
+      title: row.title,
+      contributors: [],
+      sourceUrls: Array.isArray(row.sourceUrls)
+        ? row.sourceUrls.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : [],
+    };
+    current.contributors.push(row.contributor);
+    contributionsByEvent.set(row.eventId, current);
+  }
+
+  return {
+    ...initiative,
+    contributions: [...contributionsByEvent.values()],
+    metrics,
+    versions,
+    sourceSnapshot,
+  };
 }

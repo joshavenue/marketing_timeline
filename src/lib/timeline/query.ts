@@ -1,5 +1,14 @@
-import type { DisplayLevel } from "@/domain/contracts";
+import type { DisplayLevel, TimelineKind } from "@/domain/contracts";
 import { listTimelineRows } from "@/db/queries/timeline";
+import {
+  listGrowthSeries,
+  listGrowthSeriesOptions,
+  type GrowthSeriesOption,
+} from "@/db/queries/growth-series";
+import {
+  buildGrowthSeriesReadModel,
+  type GrowthSeriesReadModel,
+} from "@/lib/metrics/growth-series";
 
 export type TimelineZoom = "year" | "quarter" | "month" | "week";
 export type TimelineSide = "top" | "bottom";
@@ -7,6 +16,9 @@ export type TimelineSide = "top" | "bottom";
 export interface TimelineLayoutInput {
   id: string;
   parentId: string | null;
+  kind: TimelineKind;
+  status: string | null;
+  contributors: string[];
   title: string;
   start: string;
   end: string | null;
@@ -28,6 +40,7 @@ export interface TimelineQuery {
   contributors?: string[];
   query?: string;
   expandedParentIds?: string[];
+  metricDefinitionId?: string;
 }
 
 export interface TimelineReadModel {
@@ -35,6 +48,13 @@ export interface TimelineReadModel {
   end: string;
   zoom: TimelineZoom;
   events: TimelineLayoutEvent[];
+  growthOptions: GrowthSeriesOption[];
+  growthSeries: GrowthSeriesReadModel | null;
+  filters: {
+    campaigns: Array<{ id: string; name: string }>;
+    statuses: string[];
+    contributors: string[];
+  };
 }
 
 export function layoutTimelineEvents(
@@ -69,11 +89,34 @@ export function layoutTimelineEvents(
 export async function getTimelineWindow(
   input: TimelineQuery,
 ): Promise<TimelineReadModel> {
-  const cachedRows = await listTimelineRows(input.workspaceId, {
-    start: input.start,
-    end: input.end,
-  });
+  const [cachedRows, growthOptions] = await Promise.all([
+    listTimelineRows(input.workspaceId, {
+      start: input.start,
+      end: input.end,
+    }),
+    listGrowthSeriesOptions(input.workspaceId),
+  ]);
+  const selectedMetricDefinitionId =
+    input.metricDefinitionId ?? growthOptions[0]?.id;
+  const growthRows = selectedMetricDefinitionId
+    ? await listGrowthSeries({
+        workspaceId: input.workspaceId,
+        metricDefinitionId: selectedMetricDefinitionId,
+        start: input.start,
+        end: input.end,
+      })
+    : null;
   const query = input.query?.trim().toLowerCase();
+  const filters = {
+    campaigns: cachedRows
+      .filter((row) => row.kind === "campaign")
+      .map((row) => ({ id: row.id, name: row.title }))
+      .sort((left, right) => left.name.localeCompare(right.name)),
+    statuses: [...new Set(cachedRows.flatMap((row) => row.status ? [row.status] : []))]
+      .sort((left, right) => left.localeCompare(right)),
+    contributors: [...new Set(cachedRows.flatMap((row) => row.contributors))]
+      .sort((left, right) => left.localeCompare(right)),
+  };
   const filtered = cachedRows.filter((row) => {
     if (
       input.campaignIds?.length &&
@@ -101,10 +144,16 @@ export async function getTimelineWindow(
     start: input.start,
     end: input.end,
     zoom: input.zoom,
+    growthOptions,
+    growthSeries: buildGrowthSeriesReadModel(growthRows),
+    filters,
     events: layoutTimelineEvents(
       filtered.map((row) => ({
         id: row.id,
-        parentId: null,
+        parentId: row.parentId,
+        kind: row.kind,
+        status: row.status,
+        contributors: row.contributors,
         title: row.title,
         start: row.start,
         end: row.end,

@@ -13,9 +13,11 @@ interface CommentView {
 export function CommentThread({
   entityType,
   entityId,
+  title = "Team comments",
 }: {
   entityType: "initiative" | "event";
   entityId: string;
+  title?: string;
 }) {
   const [comments, setComments] = useState<CommentView[]>([]);
   const [body, setBody] = useState("");
@@ -115,7 +117,7 @@ export function CommentThread({
 
   return (
     <section className="mt-6 rounded-[24px] border border-black/10 bg-white p-6">
-      <h2 className="text-xl font-semibold">Team comments</h2>
+      <h2 className="text-xl font-semibold">{title}</h2>
       <p className="mt-1 text-xs text-black/45">
         Notes are editable collaboration data. Timeline evidence remains read-only.
       </p>

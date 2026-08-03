@@ -9,6 +9,7 @@ import type {
   TimelineLayoutEvent,
   TimelineZoom,
 } from "@/lib/timeline/query";
+import type { GrowthSeriesReadModel } from "@/lib/metrics/growth-series";
 
 const VIEWPORT_KEY = "timeline.viewport";
 const zoomScale: Record<TimelineZoom, number> = {
@@ -22,18 +23,46 @@ function dayNumber(value: string) {
   return Date.parse(`${value}T00:00:00.000Z`) / 86_400_000;
 }
 
+function timelineHrefWithZoom(timelineHref: string, zoom: TimelineZoom) {
+  const url = new URL(timelineHref, "http://timeline.local");
+  url.searchParams.set("zoom", zoom);
+  return `${url.pathname}?${url.searchParams.toString()}`;
+}
+
+function formatTimelineTick(value: Date, zoom: TimelineZoom) {
+  const year = value.getUTCFullYear();
+  if (zoom === "year") return String(year);
+  if (zoom === "quarter") {
+    return `Q${Math.floor(value.getUTCMonth() / 3) + 1} ${year}`;
+  }
+  if (zoom === "month") {
+    return value.toLocaleDateString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+      year: "numeric",
+    });
+  }
+  return value.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
 export function HistoryTimeline({
   events,
   start,
   end,
   zoom,
   timelineHref,
+  growthSeries,
 }: {
   events: TimelineLayoutEvent[];
   start: string;
   end: string;
   zoom: TimelineZoom;
   timelineHref: string;
+  growthSeries: GrowthSeriesReadModel | null;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -45,19 +74,55 @@ export function HistoryTimeline({
     contentWidth,
     Math.max(0, ((dayNumber(today) - startDay) / totalDays) * contentWidth),
   );
+  const timelineTicks = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, index) => {
+        const ratio = index / 6;
+        const date = new Date((startDay + totalDays * ratio) * 86_400_000);
+        return {
+          label: formatTimelineTick(date, zoom),
+          left: ratio * contentWidth,
+        };
+      }),
+    [contentWidth, startDay, totalDays, zoom],
+  );
+  const campaignBands = useMemo(
+    () =>
+      events
+        .filter((event) => event.kind === "campaign")
+        .map((event) => {
+          const left = Math.max(
+            80,
+            ((dayNumber(event.start) - startDay) / totalDays) * contentWidth,
+          );
+          const endLeft = Math.min(
+            contentWidth - 80,
+            ((dayNumber(event.end ?? event.start) - startDay) / totalDays) *
+              contentWidth,
+          );
+          return {
+            event,
+            left,
+            width: Math.max(220, endLeft - left),
+          };
+        }),
+    [contentWidth, events, startDay, totalDays],
+  );
   const positioned = useMemo(
     () =>
-      events.map((event) => ({
-        event,
-        left: Math.min(
-          contentWidth - 104,
-          Math.max(
-            104,
-            ((dayNumber(event.markerDate) - startDay) / totalDays) *
-              contentWidth,
+      events
+        .filter((event) => event.kind !== "campaign")
+        .map((event) => ({
+          event,
+          left: Math.min(
+            contentWidth - 104,
+            Math.max(
+              104,
+              ((dayNumber(event.markerDate) - startDay) / totalDays) *
+                contentWidth,
+            ),
           ),
-        ),
-      })),
+        })),
     [contentWidth, events, startDay, totalDays],
   );
 
@@ -120,16 +185,21 @@ export function HistoryTimeline({
   }
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-black/10 bg-[#f7f5ef] shadow-[0_25px_70px_rgba(35,35,31,0.08)]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white/80 px-5 py-4">
+    <section className="overflow-hidden rounded-[var(--radius-panel)] border border-black/10 bg-[var(--color-fog)]/40">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white px-5 py-3">
+        <p className="text-sm font-semibold text-[var(--color-ink)]">
+          {start.slice(0, 4)} — {end.slice(0, 4)}
+        </p>
         <div className="flex items-center gap-1 rounded-full bg-black/[0.045] p-1">
           {(["year", "quarter", "month", "week"] as const).map((value) => (
             <Link
               aria-current={zoom === value ? "page" : undefined}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize ${
-                zoom === value ? "bg-black text-white" : "text-black/55"
+              className={`grid min-h-8 place-items-center rounded-full px-3 text-xs font-medium capitalize ${
+                zoom === value
+                  ? "bg-[var(--color-ocean)] text-white"
+                  : "text-[var(--color-muted)]"
               }`}
-              href={`?zoom=${value}`}
+              href={timelineHrefWithZoom(timelineHref, value)}
               key={value}
             >
               {value}
@@ -137,7 +207,7 @@ export function HistoryTimeline({
           ))}
         </div>
         <button
-          className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-medium"
+          className="min-h-10 rounded-full bg-[var(--color-signal)] px-5 text-sm font-semibold text-[var(--color-ink)]"
           onClick={jumpToToday}
           type="button"
         >
@@ -154,14 +224,38 @@ export function HistoryTimeline({
         tabIndex={0}
       >
         <div className="relative h-full" style={{ width: contentWidth }}>
+          {campaignBands.map(({ event, left, width }) => (
+            <div
+              className="absolute top-6 flex h-9 items-center justify-between rounded-full bg-[#dce9eb] px-4 text-xs font-semibold text-[var(--color-ocean)]"
+              data-testid="campaign-band"
+              key={event.id}
+              style={{ left, width }}
+            >
+              <span>● Campaign · {event.title}</span>
+              <span className="font-normal">
+                {event.start} — {event.end ?? event.start}
+              </span>
+            </div>
+          ))}
           <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-black/70" />
           <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[7px] border-l-[12px] border-y-transparent border-l-black/70" />
+          {timelineTicks.map((tick, index) => (
+            <div
+              className="absolute top-1/2 mt-3 -translate-x-1/2 text-center text-[11px] font-medium text-[var(--color-muted)]"
+              data-testid="timeline-tick"
+              key={`${tick.label}-${index}`}
+              style={{ left: tick.left }}
+            >
+              <span className="mx-auto mb-1 block h-2 w-px bg-black/30" />
+              {tick.label}
+            </div>
+          ))}
           <div
-            className="absolute top-12 bottom-12 w-px bg-rose-500/70"
+            className="absolute top-12 bottom-12 w-px bg-[var(--color-signal)]"
             data-testid="today-marker"
             style={{ left: todayLeft }}
           >
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-600 px-2 py-1 text-[10px] font-semibold text-white">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-signal)] px-3 py-1 text-[11px] font-semibold text-[var(--color-ink)]">
               Today
             </span>
           </div>
@@ -173,14 +267,14 @@ export function HistoryTimeline({
               timelineHref={timelineHref}
             />
           ))}
-          {events.length === 0 ? (
+          {positioned.length === 0 ? (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-10 rounded-2xl border border-dashed border-black/15 bg-white/80 px-6 py-4 text-sm text-black/45">
               No published events match this window.
             </div>
           ) : null}
         </div>
       </div>
-      <GrowthRail />
+      <GrowthRail end={end} series={growthSeries} start={start} />
     </section>
   );
 }

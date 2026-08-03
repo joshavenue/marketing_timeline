@@ -1,4 +1,5 @@
 import { chromium, type FullConfig } from "@playwright/test";
+import { eq } from "drizzle-orm";
 import { mkdir } from "node:fs/promises";
 
 import { db } from "@/db/client";
@@ -210,11 +211,15 @@ export default async function globalSetup(config: FullConfig) {
     checksum: "response-e2e",
     observedAt: today,
   }).returning({ id: sourceSnapshots.id });
+  await db
+    .update(initiatives)
+    .set({ currentSnapshotId: snapshot!.id })
+    .where(eq(initiatives.id, active.id));
   await db.insert(connections).values([
     {
       workspaceId: workspace.id,
       connectorKey: "x_post",
-      name: "Acceptance X posts",
+      name: "X posts",
       usagePeriodStart: iso(today).slice(0, 7) + "-01",
       costPerOperationMicros: "10",
       hardCapMicros: "100",
@@ -225,7 +230,7 @@ export default async function globalSetup(config: FullConfig) {
     {
       workspaceId: workspace.id,
       connectorKey: "x_account",
-      name: "Acceptance X account",
+      name: "X account",
       usagePeriodStart: iso(today).slice(0, 7) + "-01",
       costPerOperationMicros: "10",
       hardCapMicros: "100",
@@ -235,7 +240,7 @@ export default async function globalSetup(config: FullConfig) {
     {
       workspaceId: workspace.id,
       connectorKey: "x_ads",
-      name: "Acceptance X ads",
+      name: "X ads",
       usagePeriodStart: iso(today).slice(0, 7) + "-01",
       costPerOperationMicros: "10",
       hardCapMicros: "100",
@@ -330,6 +335,39 @@ export default async function globalSetup(config: FullConfig) {
       observedAt: today,
     })),
   );
+  const followerDefinition = definitions.find(
+    (definition) => definition.externalId === "e2e-followers",
+  )!;
+  await db.insert(metricObservations).values([
+    {
+      workspaceId: workspace.id,
+      metricDefinitionId: followerDefinition.id,
+      initiativeId: active.id,
+      sourceSnapshotId: snapshot!.id,
+      periodStart: new Date(`${shift(-90)}T00:00:00Z`),
+      periodEnd: new Date(`${shift(-83)}T23:59:59Z`),
+      value: "21000",
+      unit: "followers",
+      freshness: "frozen",
+      frozenAt: new Date(`${shift(-76)}T00:00:00Z`),
+      sourceUrl: "https://analytics.x.com/example-account-history",
+      observedAt: new Date(`${shift(-83)}T23:59:59Z`),
+    },
+    {
+      workspaceId: workspace.id,
+      metricDefinitionId: followerDefinition.id,
+      initiativeId: active.id,
+      sourceSnapshotId: snapshot!.id,
+      periodStart: new Date(`${shift(-45)}T00:00:00Z`),
+      periodEnd: new Date(`${shift(-38)}T23:59:59Z`),
+      value: "23200",
+      unit: "followers",
+      freshness: "frozen",
+      frozenAt: new Date(`${shift(-31)}T00:00:00Z`),
+      sourceUrl: "https://analytics.x.com/example-account-history",
+      observedAt: new Date(`${shift(-38)}T23:59:59Z`),
+    },
+  ]);
 
   await mkdir("test-results", { recursive: true });
   await authenticate(baseURL, "admin@example.test", "test-results/admin.json");

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { HistoryTimeline } from "@/components/timeline/HistoryTimeline";
 import { InitiativeDrawer } from "@/components/initiatives/InitiativeDrawer";
+import { TimelineFilters } from "@/components/timeline/TimelineFilters";
 import { getInitiativeDetail } from "@/db/queries/initiative-details";
 import { requireCurrentWorkspaceMember } from "@/lib/auth/access";
 import {
@@ -52,6 +53,14 @@ export default async function TimelinePage({
     typeof params.contributor === "string" && params.contributor
       ? [params.contributor]
       : undefined;
+  const metricDefinitionId =
+    typeof params.metric === "string" && params.metric
+      ? params.metric
+      : undefined;
+  const expandedParentIds =
+    typeof params.expanded === "string" && params.expanded
+      ? [params.expanded]
+      : undefined;
   const model = await getTimelineWindow({
     workspaceId: member.workspaceId,
     start,
@@ -61,6 +70,8 @@ export default async function TimelinePage({
     campaignIds: campaign,
     statuses: status,
     contributors: contributor,
+    metricDefinitionId,
+    expandedParentIds,
   });
   const timelineSearch = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -76,65 +87,77 @@ export default async function TimelinePage({
   const selectedInitiative = selectedInitiativeId
     ? await getInitiativeDetail(member.workspaceId, selectedInitiativeId)
     : null;
+  const activeInitiatives = model.events.filter(
+    (event) =>
+      event.kind === "initiative" &&
+      event.status?.toLowerCase() === "active",
+  ).length;
+  const observedMetrics = model.growthSeries?.points.length ?? 0;
 
   return (
-    <main className="mx-auto max-w-[1600px] px-6 py-8">
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-6">
+    <main className="mx-auto max-w-[1600px] px-8 py-10 xl:px-12">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-evidence)]">
             Past → present → future
           </p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-[-0.035em]">
+          <h1 className="mt-3 text-[40px] font-semibold leading-[44px] tracking-[-0.035em]">
             Marketing history
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-black/55">
-            Read every published initiative in chronological context, then open
-            its evidence to inspect budget, effort, metrics, and source history.
+          <p className="mt-3 max-w-3xl text-base leading-6 text-[var(--color-muted)]">
+            See what the team planned, shipped, and learned—then open the cited
+            evidence behind every initiative.
           </p>
         </div>
-        <form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5" method="get">
-          <input name="zoom" type="hidden" value={zoom} />
-          <label className="sr-only" htmlFor="timeline-search">
-            Search timeline
-          </label>
-          <input
-            className="rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500"
-            defaultValue={query}
-            id="timeline-search"
-            name="query"
-            placeholder="Search initiatives…"
-          />
-          <input
-            className="rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500"
-            defaultValue={typeof params.campaign === "string" ? params.campaign : ""}
-            name="campaign"
-            placeholder="Campaign ID"
-          />
-          <input
-            className="rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500"
-            defaultValue={typeof params.status === "string" ? params.status : ""}
-            name="status"
-            placeholder="Lifecycle status"
-          />
-          <input
-            className="rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500"
-            defaultValue={
-              typeof params.contributor === "string" ? params.contributor : ""
-            }
-            name="contributor"
-            placeholder="Contributor"
-          />
-          <button
-            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white"
-            type="submit"
-          >
-            Filter
-          </button>
-        </form>
+        <dl className="flex items-end gap-7">
+          <div>
+            <dd className="text-3xl font-semibold text-[var(--color-ocean)]">
+              {activeInitiatives}
+            </dd>
+            <dt className="mt-1 text-sm text-[var(--color-muted)]">
+              Active initiatives
+            </dt>
+          </div>
+          <div>
+            <dd className="text-3xl font-semibold text-[var(--color-ocean)]">
+              {observedMetrics}
+            </dd>
+            <dt className="mt-1 text-sm text-[var(--color-muted)]">
+              Metrics in view
+            </dt>
+          </div>
+          <div className="mb-1 rounded-full bg-[var(--color-ocean)] px-4 py-2 text-sm font-semibold text-white">
+            <span className="mr-2 text-[var(--color-signal)]">●</span>
+            History is live
+          </div>
+        </dl>
+      </div>
+      <div className="mb-6">
+        <TimelineFilters
+          campaigns={model.filters.campaigns}
+          contributors={model.filters.contributors}
+          current={{
+            query,
+            campaign: typeof params.campaign === "string" ? params.campaign : undefined,
+            status: typeof params.status === "string" ? params.status : undefined,
+            contributor:
+              typeof params.contributor === "string"
+                ? params.contributor
+                : undefined,
+            metricDefinitionId:
+              metricDefinitionId ?? model.growthSeries?.definition.id,
+            start,
+            end,
+            zoom,
+          }}
+          metrics={model.growthOptions}
+          statuses={model.filters.statuses}
+        />
       </div>
       <HistoryTimeline
         end={model.end}
         events={model.events}
+        growthSeries={model.growthSeries}
         start={model.start}
         timelineHref={timelineHref}
         zoom={model.zoom}

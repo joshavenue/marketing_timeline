@@ -1,7 +1,12 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { db } from "@/db/client";
-import { initiatives } from "@/db/schema";
+import {
+  campaigns,
+  initiatives,
+  timelineEventContributors,
+  timelineEvents,
+} from "@/db/schema";
 import { createWorkspace } from "@/db/queries/workspaces";
 import { listTimelineRows } from "@/db/queries/timeline";
 import {
@@ -44,6 +49,74 @@ describe("workspace-scoped timeline schema", () => {
     });
 
     expect(rows.map((row) => row.externalId)).toEqual(["initiative-a"]);
+  });
+
+  it("preserves campaign, initiative, and event hierarchy metadata", async () => {
+    const workspace = await createWorkspace("Workspace A");
+    const [campaign] = await db
+      .insert(campaigns)
+      .values({
+        workspaceId: workspace.id,
+        externalId: "campaign-a",
+        name: "Campaign A",
+        lifecycleStatus: "Active",
+        publicationStatus: "published",
+        startDate: "2026-01-01",
+        displayLevel: "primary",
+      })
+      .returning({ id: campaigns.id });
+    const [initiative] = await db
+      .insert(initiatives)
+      .values({
+        workspaceId: workspace.id,
+        externalId: "initiative-a",
+        campaignId: campaign!.id,
+        name: "Initiative A",
+        lifecycleStatus: "Active",
+        publicationStatus: "published",
+        startDate: "2026-01-10",
+        displayLevel: "primary",
+      })
+      .returning({ id: initiatives.id });
+    const [event] = await db
+      .insert(timelineEvents)
+      .values({
+        workspaceId: workspace.id,
+        externalId: "event-a",
+        initiativeId: initiative!.id,
+        title: "Event A",
+        kind: "activity",
+        publicationStatus: "published",
+        startDate: "2026-01-11",
+        displayLevel: "nested",
+      })
+      .returning({ id: timelineEvents.id });
+    await db.insert(timelineEventContributors).values({
+      workspaceId: workspace.id,
+      eventId: event!.id,
+      contributorName: "Person A",
+    });
+
+    const rows = await listTimelineRows(workspace.id, {
+      start: "2026-01-01",
+      end: "2026-01-31",
+    });
+
+    expect(
+      rows.map(({ kind, parentId, contributors }) => ({
+        kind,
+        parentId,
+        contributors,
+      })),
+    ).toEqual([
+      { kind: "campaign", parentId: null, contributors: [] },
+      { kind: "initiative", parentId: campaign!.id, contributors: [] },
+      {
+        kind: "activity",
+        parentId: initiative!.id,
+        contributors: ["Person A"],
+      },
+    ]);
   });
 
   it("rejects duplicate external IDs inside one workspace", async () => {

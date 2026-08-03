@@ -13,9 +13,46 @@ test.describe("historical timeline", () => {
   }) => {
     await page.goto("/timeline");
 
+    await expect(
+      page.getByRole("link", { name: "Marketing Timeline" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "History" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page.getByText("Past → present → future")).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Campaign" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+    await expect(
+      page.getByRole("combobox", { name: "Contributor" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Quarter" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page.getByRole("link", { name: "Clear filters" })).toBeVisible();
+    const jumpToToday = page.getByRole("button", { name: "Jump to today" });
+    await jumpToToday.focus();
+    await expect(jumpToToday).toBeFocused();
+
     const scroller = page.getByTestId("timeline-scroll");
     await expect(page.getByTestId("today-marker")).toBeVisible();
-    await expect(page.getByTestId("timeline-marker")).toHaveCount(4);
+    await expect(page.getByTestId("campaign-band")).toHaveCount(1);
+    await expect(page.getByTestId("timeline-marker")).toHaveCount(3);
+    await expect(page.getByTestId("timeline-tick")).toHaveCount(7);
+    await expect(page.getByTestId("timeline-tick").first()).toContainText(/Q[1-4]/);
+    await expect(page.getByTestId("campaign-band")).toContainText(
+      "Growth campaign",
+    );
+    await expect(page.getByText("Company growth context")).toBeVisible();
+    await expect(page.getByText("Raw observation")).toBeVisible();
+    await expect(page.getByText("No recorded value")).toBeVisible();
+    await expect(page.getByText("Frozen after 7 days")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Timing alignment supports human interpretation and does not prove causation.",
+      ),
+    ).toBeVisible();
     await expect
       .poll(() => scroller.evaluate((element) => element.scrollLeft))
       .toBeGreaterThan(0);
@@ -44,6 +81,12 @@ test.describe("historical timeline", () => {
     await expect
       .poll(() => scroller.evaluate((element) => element.scrollLeft))
       .toBeCloseTo(savedPosition, 0);
+
+    await page
+      .getByRole("link", { name: "Show related events for Active initiative" })
+      .click();
+    await expect(page).toHaveURL(/expanded=/);
+    await expect(page.getByText("Token Pre-Sales social posting")).toBeVisible();
 
     await page.getByRole("link", { name: "Month" }).click();
     await expect(page).toHaveURL(/zoom=month/);

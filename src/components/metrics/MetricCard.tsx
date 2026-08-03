@@ -1,5 +1,14 @@
 import { deriveFreshness } from "@/lib/metrics/freshness";
 
+function formatMetricValue(value: string | null) {
+  if (value === null) return "No reading";
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return value;
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+}
+
 export function MetricCard({
   metric,
 }: {
@@ -11,6 +20,8 @@ export function MetricCard({
     inputs?: Record<string, number>;
     unit: string;
     value: string | null;
+    freshness?: "fresh" | "stale" | "frozen" | null;
+    freezeAgeDays?: number | null;
     observedAt: Date | null;
     frozenAt: Date | null;
     sourceUrl: string | null;
@@ -21,6 +32,10 @@ export function MetricCard({
         observedAt: metric.observedAt,
         frozenAt: metric.frozenAt,
         now: new Date(),
+        ...(metric.freezeAgeDays === null || metric.freezeAgeDays === undefined
+          ? {}
+          : { freezeAgeDays: metric.freezeAgeDays }),
+        ...(metric.freshness ? { reportedFreshness: metric.freshness } : {}),
       })
     : null;
   return (
@@ -28,11 +43,11 @@ export function MetricCard({
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold">{metric.name}</p>
         <span className="rounded-full bg-black/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide">
-          {metric.kind}
+          {metric.kind === "raw" ? "Raw source" : "Calculated"}
         </span>
       </div>
       <p className="mt-4 text-3xl font-semibold">
-        {metric.value ?? "No reading"}{" "}
+        <span>{formatMetricValue(metric.value)}</span>{" "}
         <span className="text-sm font-normal text-black/45">{metric.unit}</span>
       </p>
       {metric.formulaKey ? (
@@ -49,7 +64,11 @@ export function MetricCard({
         </div>
       ) : null}
       <div className="mt-4 flex items-center justify-between text-xs text-black/45">
-        <span>{freshness ?? "awaiting source"}</span>
+        <span>
+          {freshness === "frozen" && metric.freezeAgeDays
+            ? `Frozen after ${metric.freezeAgeDays} days`
+            : freshness ?? "Awaiting source"}
+        </span>
         {metric.sourceUrl ? (
           <a
             className="font-medium text-blue-700 underline"
