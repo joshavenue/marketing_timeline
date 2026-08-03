@@ -1,4 +1,5 @@
 import { chromium, type FullConfig } from "@playwright/test";
+import { eq } from "drizzle-orm";
 import { mkdir } from "node:fs/promises";
 
 import { db } from "@/db/client";
@@ -210,6 +211,10 @@ export default async function globalSetup(config: FullConfig) {
     checksum: "response-e2e",
     observedAt: today,
   }).returning({ id: sourceSnapshots.id });
+  await db
+    .update(initiatives)
+    .set({ currentSnapshotId: snapshot!.id })
+    .where(eq(initiatives.id, active.id));
   await db.insert(connections).values([
     {
       workspaceId: workspace.id,

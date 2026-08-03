@@ -310,31 +310,31 @@ git commit -m "feat: render live marketing history"
 - Drawer and full page consume the same `getInitiativeDetail` result.
 - Closing the drawer and opening the full page preserve the complete timeline URL.
 
-- [ ] **Step 1: Add failing drawer browser assertions**
+- [x] **Step 1: Add failing drawer browser assertions**
 
 Assert the 560px right-side drawer, campaign/status header, overview, dates, owner, planned/actual budget, raw evidence, grouped contribution list, source provenance, team comments, close action, and full-page action.
 
-- [ ] **Step 2: Run drawer tests and verify RED**
+- [x] **Step 2: Run drawer tests and verify RED**
 
 Run: `pnpm playwright test tests/e2e/initiative-details.spec.ts tests/e2e/comments.spec.ts --project=chromium`
 
 Expected: FAIL because the current generic detail page is nested inside a wide drawer and does not match the approved evidence hierarchy.
 
-- [ ] **Step 3: Split reusable detail sections**
+- [x] **Step 3: Split reusable detail sections**
 
 Keep a shared data contract but render compact drawer and full-page layouts with focused internal sections for summary, performance evidence, contributions, provenance, and comments.
 
-- [ ] **Step 4: Apply dialog accessibility and context preservation**
+- [x] **Step 4: Apply dialog accessibility and context preservation**
 
 Label the dialog, set `aria-modal`, provide a visible Close target, retain timeline search parameters, and keep background content visually subdued without making evidence inaccessible on the full page.
 
-- [ ] **Step 5: Verify Task 6**
+- [x] **Step 5: Verify Task 6**
 
 Run: `pnpm playwright test tests/e2e/initiative-details.spec.ts tests/e2e/comments.spec.ts tests/e2e/acceptance.spec.ts --project=chromium`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/initiatives/InitiativeDrawer.tsx src/components/initiatives/InitiativeDetail.tsx src/components/metrics/MetricSeries.tsx src/components/comments/CommentThread.tsx tests/e2e/initiative-details.spec.ts tests/e2e/comments.spec.ts

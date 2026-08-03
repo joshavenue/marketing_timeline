@@ -2,7 +2,13 @@ import { MetricCard } from "@/components/metrics/MetricCard";
 
 type Metric = Parameters<typeof MetricCard>[0]["metric"];
 
-export function MetricSeries({ metrics }: { metrics: Metric[] }) {
+export function MetricSeries({
+  metrics,
+  compact = false,
+}: {
+  metrics: Metric[];
+  compact?: boolean;
+}) {
   if (metrics.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-black/15 p-5 text-sm text-black/45">
@@ -11,7 +17,7 @@ export function MetricSeries({ metrics }: { metrics: Metric[] }) {
     );
   }
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className={`grid gap-3 ${compact ? "" : "md:grid-cols-2"}`}>
       {metrics.map((metric, index) => (
         <MetricCard key={`${metric.name}-${index}`} metric={metric} />
       ))}

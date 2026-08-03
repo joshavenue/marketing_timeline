@@ -68,6 +68,7 @@ test("master acceptance criteria 1 through 19", async ({ browser, page }) => {
     await expect(page).toHaveURL(/initiative=/);
     await expect(page.getByRole("dialog", { name: "Initiative details" })).toBeVisible();
     await page.getByRole("link", { name: "Open full page" }).click();
+    await expect(page).toHaveURL(/\/initiatives\/[0-9a-f-]{36}/);
     activeInitiativeId = new URL(page.url()).pathname.split("/").at(-1)!;
     await expect(page.getByText("Planned budget")).toBeVisible();
     await expect(page.getByText("Token Pre-Sales social posting")).toBeVisible();
@@ -230,8 +231,12 @@ test("master acceptance criteria 1 through 19", async ({ browser, page }) => {
         body: `Please review @[Member](user:${member!.id})`,
       },
     });
-    expect(topLevel.status()).toBe(201);
-    const { comment } = (await topLevel.json()) as { comment: { id: string } };
+    const topLevelPayload = (await topLevel.json()) as {
+      comment?: { id: string };
+      error?: string;
+    };
+    expect(topLevel.status(), topLevelPayload.error).toBe(201);
+    const comment = topLevelPayload.comment!;
     expect(
       (
         await page.request.post("/api/comments", {
