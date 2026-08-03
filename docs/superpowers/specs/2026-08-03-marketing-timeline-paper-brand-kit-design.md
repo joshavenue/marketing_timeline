@@ -1,6 +1,6 @@
 # Marketing Timeline — Paper Brand Kit Design
 
-**Status:** Approved direction, pending written-spec review  
+**Status:** Approved  
 **Date:** 2026-08-03  
 **Scope:** Brand foundations for the desktop Marketing Timeline interface
 
@@ -128,4 +128,3 @@ The first Paper deliverable is one separate **Marketing Timeline — Brand Kit**
 - Status, source, and system-state specimens
 
 The artboard will be reviewed at meaningful checkpoints for spacing, typography, contrast, alignment, artboard fit, and excessive repetition. The homepage design begins only after this brand kit is reviewed and accepted.
-
