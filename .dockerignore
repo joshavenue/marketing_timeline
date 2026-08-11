@@ -4,5 +4,7 @@ node_modules
 test-results
 .env*
 !.env.example
+caddy-data
+caddy-config
 *.dump
 *.dump.age

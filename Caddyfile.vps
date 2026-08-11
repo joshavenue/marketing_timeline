@@ -1,0 +1,11 @@
+marketing.solidmetrics.co {
+	bind 84.247.154.69
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:4300
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

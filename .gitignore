@@ -8,5 +8,7 @@ test-results/
 coverage/
 *.tsbuildinfo
 backups/
+caddy-data/
+caddy-config/
 fixtures/private/
 .worktrees/

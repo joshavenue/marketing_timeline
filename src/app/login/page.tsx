@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
 export default function LoginPage() {
   return (
@@ -13,12 +13,7 @@ export default function LoginPage() {
         <p className="mt-3 text-sm leading-6 text-black/60">
           Use the Google account matching your workspace invitation.
         </p>
-        <Link
-          className="mt-8 block rounded-full bg-black px-5 py-3 text-center text-sm font-medium text-white"
-          href="/api/auth/signin/google"
-        >
-          Continue with Google
-        </Link>
+        <GoogleSignInButton />
       </section>
     </main>
   );
