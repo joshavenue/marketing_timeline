@@ -15,6 +15,7 @@
     "test:acceptance": "vitest run && playwright test tests/e2e/acceptance.spec.ts --project=chromium",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:bootstrap-notion": "tsx scripts/bootstrap-notion-connection.ts",
     "worker": "tsx scripts/worker.ts"
   },
   "dependencies": {

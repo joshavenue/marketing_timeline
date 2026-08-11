@@ -26,6 +26,7 @@ docker compose run --rm \
   -e BOOTSTRAP_GOOGLE_EMAIL \
   -e BOOTSTRAP_WORKSPACE_NAME \
   web pnpm tsx scripts/seed-acceptance.ts
+docker compose run --rm web pnpm db:bootstrap-notion
 docker compose up -d web worker caddy
 docker compose ps
 ```
@@ -43,7 +44,8 @@ database and application network remain internal.
 After the application is healthy:
 
 1. Sign in with the bootstrapped Google account.
-2. Configure the five curated Notion database IDs and run one confirmed manual
+2. Configure the five curated Notion database IDs with
+   `pnpm db:bootstrap-notion`, then run one confirmed manual
    synchronization containing a campaign, initiative, event, metric definition,
    and manual observation.
 3. Confirm the validation report, timeline marker, evidence drawer, metric
