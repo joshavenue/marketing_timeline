@@ -21,6 +21,8 @@ services:
       dockerfile: Dockerfile
     image: ${APP_IMAGE:-marketing-timeline}:${APP_IMAGE_TAG:-local}
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:4300:3000"
     env_file:
       - path: .env.production
         required: false
@@ -42,7 +44,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [backend]
+    networks: [backend, egress]
 
   worker:
     image: ${APP_IMAGE:-marketing-timeline}:${APP_IMAGE_TAG:-local}
@@ -57,9 +59,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [backend]
+    networks: [backend, egress]
 
   caddy:
+    profiles: [container-proxy]
     image: caddy:2.10-alpine
     restart: unless-stopped
     environment:
@@ -80,6 +83,8 @@ services:
 networks:
   backend:
     internal: true
+  egress:
+    driver: bridge
 
 volumes:
   postgres_data:
