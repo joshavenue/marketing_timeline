@@ -72,7 +72,7 @@ export default async function NotionSettingsPage() {
         </div>
         <Link
           className="rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-medium"
-          href="https://github.com/joshavenue/marketing_timeline/blob/agent/first-build/docs/runbooks/notion-canonical-setup.md"
+          href="https://github.com/joshavenue/marketing_timeline/blob/main/docs/runbooks/notion-canonical-setup.md"
         >
           View setup contract
         </Link>
