@@ -290,17 +290,35 @@ async function queryAll(client: Client, dataSourceId: string) {
   return pages;
 }
 
+async function resolveDataSourceId(client: Client, databaseId: string) {
+  const database = await client.databases.retrieve({ database_id: databaseId });
+  const dataSources = "data_sources" in database ? database.data_sources : [];
+  const dataSource = dataSources?.[0];
+  if (!dataSource?.id) {
+    throw new Error(`Database ${databaseId} has no data source`);
+  }
+  return dataSource.id;
+}
+
 export async function readCanonicalNotionPages(
   input: ReadCanonicalNotionPagesInput,
 ): Promise<unknown[]> {
   const client = new Client({ auth: input.token, retry: false });
+  const [campaignsId, initiativesId, eventsId, metricsId, observationsId] =
+    await Promise.all([
+      resolveDataSourceId(client, input.databaseIds.campaigns),
+      resolveDataSourceId(client, input.databaseIds.initiatives),
+      resolveDataSourceId(client, input.databaseIds.events),
+      resolveDataSourceId(client, input.databaseIds.metrics),
+      resolveDataSourceId(client, input.databaseIds.observations),
+    ]);
   const [campaigns, initiatives, events, metrics, observations] =
     await Promise.all([
-      queryAll(client, input.databaseIds.campaigns),
-      queryAll(client, input.databaseIds.initiatives),
-      queryAll(client, input.databaseIds.events),
-      queryAll(client, input.databaseIds.metrics),
-      queryAll(client, input.databaseIds.observations),
+      queryAll(client, campaignsId),
+      queryAll(client, initiativesId),
+      queryAll(client, eventsId),
+      queryAll(client, metricsId),
+      queryAll(client, observationsId),
     ]);
 
   return [
