@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Read and obey `docs/superpowers/specs/2026-07-24-marketing-timeline-dashboard-design.md` before changing code.
-- Work only in `/root/marketing-timeline-dashboard`.
+- Work from the repository root.
 - Preserve the approved hierarchy: Campaign → Initiative → Timeline Event/Contribution.
 - Notion owns editable marketing records; X owns imported analytics; the application never writes to either.
 - Only Notion records whose `Publication Status` is `Published` may enter product queries.
@@ -1337,7 +1337,7 @@ Use this exact execution discipline when launching the `/goal` worker:
 6. If credentials, domain, SMTP, S3-compatible backup destination, Google OAuth client, Notion database IDs, or X account IDs are missing, the worker must finish all credential-independent work and report the exact missing values. It must not invent them.
 7. If an X metric is unavailable under the real authentication context, the worker must implement and display `CAPABILITY_UNAVAILABLE`; it must not approximate the metric.
 8. The worker may perform the plan's required one-time production smoke reads without another chat approval only after valid credentials and hard caps are configured. It must not make unrelated, repeated, or uncapped paid API calls.
-9. Start from `main` on an `agent/first-build` branch. Never implement directly on `main`.
+9. Start from `main` on a feature branch. Never implement directly on `main`.
 10. Push the branch and open a draft pull request after the first implementation commit, then keep its description, validation results, and branch current throughout execution.
 11. Before merging, run the complete required test and acceptance suite, inspect the final diff for scope and secrets, and resolve all actionable failures. Mark the pull request ready and merge it only when every required check passes.
 12. After merging, deploy the merged `main` commit and rerun production acceptance. Record the deployed commit SHA.

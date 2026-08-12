@@ -1,8 +1,8 @@
-# VPS deployment
+# Container deployment
 
 ## Prerequisites
 
-Install Docker Engine and Compose, then install recovery tools from Ubuntu:
+Install Docker Engine and Compose. On Ubuntu, recovery tools can be installed with:
 
 ```bash
 sudo apt-get update
