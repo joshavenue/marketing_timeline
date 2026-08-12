@@ -6,7 +6,7 @@ contains no credentials, API tokens, encrypted secrets, or production data.
 ## Current state
 
 - Repository: `joshavenue/marketing_timeline`
-- Production URL: `https://marketing.solidmetrics.co`
+- Production URL: configured by the next owner through `APP_DOMAIN`.
 - Deployment: rootless Podman Compose on the VPS, with PostgreSQL, web, worker,
   and host-level Caddy.
 - Existing SolidMetrics traffic is separate and must remain untouched.
@@ -31,7 +31,7 @@ git pull --ff-only origin main
 docker compose --env-file .env.production build web
 docker compose --env-file .env.production up -d web worker
 docker compose --env-file .env.production exec -T web pnpm db:migrate
-curl -fsS https://marketing.solidmetrics.co/api/health
+curl -fsS "https://${APP_DOMAIN}/api/health"
 ```
 
 Never print `.env.production`, the Notion token, Google credentials, or

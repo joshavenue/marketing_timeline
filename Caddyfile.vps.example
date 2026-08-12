@@ -1,5 +1,6 @@
-marketing.solidmetrics.co {
-	bind 84.247.154.69
+# Copy this file to Caddyfile.vps and replace APP_DOMAIN with your domain
+# before starting Caddy on a host-level VPS proxy.
+{$APP_DOMAIN} {
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:4300
 	header {
