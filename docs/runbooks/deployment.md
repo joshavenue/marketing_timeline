@@ -9,7 +9,8 @@ sudo apt-get update
 sudo apt-get install -y age awscli
 ```
 
-Create `.env.production` with application secrets and export `APP_DOMAIN`,
+Create `.env.production` with application secrets and export the new owner’s
+domain as `APP_DOMAIN`,
 `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` in the deployment
 shell. Keep both files mode `0600`.
 
