@@ -1,11 +1,22 @@
 import { DemoSignInButton } from "@/components/demo-sign-in-button";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const isDemoMode =
     process.env.APP_ENV === "test" &&
     process.env.E2E_TEST_MODE === "1" &&
-    process.env.APP_ORIGIN?.startsWith("http://localhost");
+    (() => {
+      try {
+        return (
+          new URL(process.env.APP_ORIGIN ?? "http://invalid").hostname ===
+          "localhost"
+        );
+      } catch {
+        return false;
+      }
+    })();
 
   return (
     <main className="grid min-h-screen place-items-center p-8">
