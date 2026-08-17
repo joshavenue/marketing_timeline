@@ -23,6 +23,7 @@ const serverEnvSchema = z
       }
     }),
     E2E_TEST_MODE: z.enum(["1"]).optional(),
+    E2E_ALLOW_PUBLIC: z.enum(["1"]).optional(),
     E2E_TEST_ADMIN_EMAIL: optionalString,
     E2E_TEST_MEMBER_EMAIL: optionalString,
     AUTH_GOOGLE_ID: optionalString,
@@ -49,14 +50,15 @@ const serverEnvSchema = z
     if (
       value.E2E_TEST_MODE === "1" &&
       (value.APP_ENV !== "test" ||
-        !["localhost", "127.0.0.1"].includes(
+        (!["localhost", "127.0.0.1"].includes(
           new URL(value.APP_ORIGIN).hostname,
-        ))
+        ) &&
+          value.E2E_ALLOW_PUBLIC !== "1"))
     ) {
       context.addIssue({
         code: "custom",
         message:
-          "E2E_TEST_MODE=1 requires APP_ENV=test and a localhost APP_ORIGIN",
+          "E2E_TEST_MODE=1 requires APP_ENV=test and either a localhost APP_ORIGIN or E2E_ALLOW_PUBLIC=1",
         path: ["E2E_TEST_MODE"],
       });
     }
