@@ -9,9 +9,12 @@ export default function LoginPage() {
     process.env.E2E_TEST_MODE === "1" &&
     (() => {
       try {
+        const hostname = new URL(
+          process.env.APP_ORIGIN ?? "http://invalid",
+        ).hostname;
         return (
-          new URL(process.env.APP_ORIGIN ?? "http://invalid").hostname ===
-          "localhost"
+          ["localhost", "127.0.0.1"].includes(hostname) ||
+          process.env.E2E_ALLOW_PUBLIC === "1"
         );
       } catch {
         return false;
