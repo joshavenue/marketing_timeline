@@ -7,12 +7,19 @@ import { db } from "@/db/client";
 import { memberships, users } from "@/db/schema";
 import { hasActiveMembershipOrInvitation } from "@/lib/auth/invitations";
 
-const isSafeE2eMode =
+const isLocalE2eMode =
   process.env.APP_ENV === "test" &&
   process.env.E2E_TEST_MODE === "1" &&
   ["localhost", "127.0.0.1"].includes(
     new URL(process.env.APP_ORIGIN ?? "http://invalid").hostname,
   );
+
+const isPublicE2eMode =
+  process.env.APP_ENV === "test" &&
+  process.env.E2E_TEST_MODE === "1" &&
+  process.env.E2E_ALLOW_PUBLIC === "1";
+
+const isSafeE2eMode = isLocalE2eMode || isPublicE2eMode;
 
 const providers: NextAuthOptions["providers"] = [];
 
