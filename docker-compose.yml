@@ -71,14 +71,14 @@ services:
       web:
         condition: service_healthy
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - "${APP_BIND_IP:-0.0.0.0}:80:80"
+      - "${APP_BIND_IP:-0.0.0.0}:443:443"
+      - "${APP_BIND_IP:-0.0.0.0}:443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    networks: [backend]
+    networks: [backend, egress]
 
 networks:
   backend:
